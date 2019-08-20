@@ -6,11 +6,16 @@
 </head>
 <body>
 
-<form method="post" action="/upload" enctype="multipart/form-data">
+<form method="post" th:action="@{/upload}" enctype="multipart/form-data">
 
    Cookie: <textarea name="cookie" rows="10" cols="50"></textarea><br><br>
     <input type="file" name="file" multiple><br><br>
     <input type="submit" value="提交">
+</form>
+
+
+<form th:action="@{/logout}" method="post">
+    <input type="submit" value="Sign Out"/>
 </form>
 
 </body>
