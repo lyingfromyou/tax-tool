@@ -1,6 +1,7 @@
 package com.example.taxtool.controller;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
@@ -40,6 +41,9 @@ public class TaxController {
             if (StrUtil.isBlank(cookie)) {
                 return "爸爸的 cookie 呢?";
             }
+
+            String fileName = file.getOriginalFilename().split("\\.")[0];
+
             System.err.println(cookie);
             ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
             reader.addHeaderAlias("客户姓名", "xm");
@@ -53,7 +57,7 @@ public class TaxController {
                 List<InputUserInfo> infos = splitList.get(index);
                 callables.add(new GetUserInfoTask(cookie, infos, index));
             }
-            new Thread(new GetTaskResultUserList(callables, threadPoolExecutor)).start();
+            new Thread(new GetTaskResultUserList(callables, threadPoolExecutor, fileName)).start();
             return "ok";
         } else {
             return "说好的文件呢";

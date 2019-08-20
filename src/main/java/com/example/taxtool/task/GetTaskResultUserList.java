@@ -3,6 +3,7 @@ package com.example.taxtool.task;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
+import com.example.taxtool.config.SaveFilePath;
 import com.example.taxtool.entity.OutputUserInfo;
 
 import java.time.LocalDate;
@@ -22,10 +23,12 @@ public class GetTaskResultUserList implements Runnable {
 
     private Collection<GetUserInfoTask> callables;
     private ThreadPoolExecutor threadPoolExecutor;
+    private String fileName;
 
-    public GetTaskResultUserList(Collection<GetUserInfoTask> callables, ThreadPoolExecutor threadPoolExecutor) {
+    public GetTaskResultUserList(Collection<GetUserInfoTask> callables, ThreadPoolExecutor threadPoolExecutor, String fileName) {
         this.callables = callables;
         this.threadPoolExecutor = threadPoolExecutor;
+        this.fileName = fileName;
     }
 
     @Override
@@ -38,16 +41,12 @@ public class GetTaskResultUserList implements Runnable {
                     userInfos.addAll(future.get());
                 }
             }
-
             System.err.println(userInfos.size());
             System.err.println(userInfos.stream().collect(Collectors.toSet()).size());
 
             this.threadPoolExecutor.shutdown();
 
-            ExcelWriter writer = ExcelUtil.getWriter("D:\\" + LocalDate.now()
-                    + StrUtil.DASHED
-                    + System.currentTimeMillis()
-                    + "-tax.xlsx");
+            ExcelWriter writer = ExcelUtil.getWriter(SaveFilePath.FILE_PATH + this.fileName + StrUtil.DASHED + LocalDate.now()+ ".xlsx");
             writer.addHeaderAlias("xm", "姓名");
             writer.addHeaderAlias("sfz", "身份证");
             writer.addHeaderAlias("company", "公司");
