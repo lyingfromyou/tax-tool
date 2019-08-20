@@ -28,11 +28,9 @@ import java.util.concurrent.TimeUnit;
 @Controller
 public class TaxController {
 
-
     BlockingQueue blockingQueue = new ArrayBlockingQueue<>(15);
     ThreadPoolExecutor threadPoolExecutor =
             new ThreadPoolExecutor(5, 10, 1, TimeUnit.MINUTES, blockingQueue);
-
 
     @PostMapping(value = "/upload", produces = "application/json; charset=utf-8")
     @ResponseBody
@@ -42,7 +40,9 @@ public class TaxController {
                 return "爸爸的 cookie 呢?";
             }
 
-            String fileName = file.getOriginalFilename().split("\\.")[0];
+            String originalFilename = file.getOriginalFilename();
+            String fileName = originalFilename.substring(0, originalFilename.lastIndexOf("."));
+            System.err.println(fileName);
 
             System.err.println(cookie);
             ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
