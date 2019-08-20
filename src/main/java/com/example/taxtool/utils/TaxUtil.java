@@ -1,15 +1,16 @@
 package com.example.taxtool.utils;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.example.taxtool.entity.QueryInfo;
 import com.example.taxtool.entity.UserInfo;
-import lombok.experimental.UtilityClass;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TaxUtil {
@@ -21,13 +22,29 @@ public class TaxUtil {
 
 
 
-    public static UserInfo query(String cookie) {
+    public static List<UserInfo> queryList(String cookie) {
         HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
         request.cookie(cookie);
         String result = request.execute().body();
         if (isSuccess(result)) {
             QueryInfo queryInfo = JSONUtil.toBean(result, QueryInfo.class);
-            return queryInfo.getData()[0];
+            return CollUtil.newArrayList(queryInfo.getData());
+        }
+        return null;
+    }
+
+
+    public static UserInfo query(String cookie, String xm) {
+        HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
+        request.cookie(cookie);
+        String result = request.execute().body();
+        if (isSuccess(result)) {
+            QueryInfo queryInfo = JSONUtil.toBean(result, QueryInfo.class);
+            for (UserInfo userInfo : queryInfo.getData()) {
+                if (userInfo.getXm().equalsIgnoreCase(xm)) {
+                    return userInfo;
+                }
+            }
         }
         return null;
     }

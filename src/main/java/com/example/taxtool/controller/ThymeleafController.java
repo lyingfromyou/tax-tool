@@ -1,13 +1,11 @@
 package com.example.taxtool.controller;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
-import cn.hutool.poi.excel.ExcelWriter;
 import com.example.taxtool.entity.InputUserInfo;
-import com.example.taxtool.entity.OutputUserInfo;
-import com.example.taxtool.entity.UserInfo;
-import com.example.taxtool.utils.TaxUtil;
+import com.example.taxtool.task.GetTaskResultUserList;
+import com.example.taxtool.task.GetUserInfoTask;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,13 +14,22 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 
 @Controller
 public class ThymeleafController {
+
+
+    BlockingQueue blockingQueue = new ArrayBlockingQueue<>(15);
+    ThreadPoolExecutor threadPoolExecutor =
+            new ThreadPoolExecutor(5, 10, 1, TimeUnit.MINUTES, blockingQueue);
 
     @GetMapping("/show")
     public String show() {
@@ -31,71 +38,38 @@ public class ThymeleafController {
 
     @PostMapping("/upload")
     @ResponseBody
-    public String upload(@RequestParam("file") MultipartFile file, @RequestParam String cookie) throws IOException {
-        if (file.isEmpty()) {
-            return "上传失败，请选择文件";
-        }
+    public String upload(
+            @RequestParam("file") MultipartFile file,
+//            HttpServletRequest request,
+            @RequestParam String cookie) throws IOException, InterruptedException {
+//        List<MultipartFile> files = ((MultipartHttpServletRequest) request).getFiles("file");
         System.err.println(cookie);
         ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
         reader.addHeaderAlias("客户姓名", "xm");
         reader.addHeaderAlias("身份证号", "sfz");
-
         List<InputUserInfo> inputUserInfos = reader.readAll(InputUserInfo.class);
 
-        String fileName = file.getOriginalFilename().replaceFirst("\\.xlsx", "");
-        new Thread(new Task(cookie, inputUserInfos, fileName)).start();
-        return "ok";
-    }
+        List<List<InputUserInfo>> splitList = CollUtil.split(inputUserInfos, 100);
 
-
-}
-
-class Task implements Runnable {
-
-    private String cookie;
-    private String fileName;
-    private List<InputUserInfo> inputUserInfos;
-
-    public Task(String cookie, List<InputUserInfo> inputUserInfos,String fileName) {
-        this.cookie = cookie;
-        this.inputUserInfos = inputUserInfos;
-        this.fileName = fileName;
-    }
-
-    @Override
-    public void run() {
-        List<OutputUserInfo> userInfos = new ArrayList<>();
-        for (InputUserInfo inputUserInfo : inputUserInfos) {
-            if (TaxUtil.create(cookie, inputUserInfo.getXm(), inputUserInfo.getSfz())) {
-                System.err.println(inputUserInfo.getXm() + " -- 添加成功");
-                UserInfo userInfo = TaxUtil.query(cookie);
-                userInfos.add(new OutputUserInfo(userInfo));
-                if (TaxUtil.remove(cookie, userInfo)) {
-                    System.err.println(inputUserInfo.getXm() + " -- 解除授权成功");
-
-                    if (TaxUtil.delete(cookie, userInfo)) {
-                        System.err.println(inputUserInfo.getXm() + " -- 删除用户成功");
-                    } else {
-                        System.err.println(inputUserInfo.getXm() + " -- 删除用户失败");
-                    }
-                } else {
-                    System.err.println(inputUserInfo.getXm() + " -- 解除授权失败");
-                }
-            } else {
-                System.err.println(inputUserInfo.getXm() + " -- 添加失败");
-            }
+        Collection<GetUserInfoTask> callables = new ArrayList<>();
+        for (int index = 0; index < splitList.size(); index++) {
+            List<InputUserInfo> infos = splitList.get(index);
+            callables.add(new GetUserInfoTask(cookie, infos, index));
         }
 
-        ExcelWriter writer = ExcelUtil.getWriter("D:\\" + LocalDate.now() + StrUtil.DASHED + fileName + "-tax.xlsx");
-        writer.addHeaderAlias("xm", "姓名");
-        writer.addHeaderAlias("sfz", "身份证");
-        writer.addHeaderAlias("company", "公司");
+        new Thread(new GetTaskResultUserList(callables, threadPoolExecutor)).start();
 
-        // 一次性写出内容
-        writer.write(userInfos, true);
-
-        // 关闭writer，释放内存
-        writer.close();
+//        new Thread(() -> {
+//            while (!threadPoolExecutor.isShutdown()) {
+//                try {
+//                    Thread.sleep(5000);
+//                } catch (InterruptedException e) {
+//                    e.printStackTrace();
+//                }
+//                new Thread(new RemoveAndDeleteUser(cookie)).start();
+//            }
+//        }).start();
+        return "ok";
     }
 
 }

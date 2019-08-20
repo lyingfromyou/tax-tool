@@ -1,0 +1,65 @@
+package com.example.taxtool.task;
+
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import com.example.taxtool.entity.OutputUserInfo;
+
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
+
+/**
+ * @author by Lying
+ * @Date 2019/8/18
+ */
+public class GetTaskResultUserList implements Runnable {
+
+    private Collection<GetUserInfoTask> callables;
+    private ThreadPoolExecutor threadPoolExecutor;
+
+    public GetTaskResultUserList(Collection<GetUserInfoTask> callables, ThreadPoolExecutor threadPoolExecutor) {
+        this.callables = callables;
+        this.threadPoolExecutor = threadPoolExecutor;
+    }
+
+    @Override
+    public void run() {
+        List<OutputUserInfo> userInfos = new ArrayList<>();
+        try {
+            List<Future<List<OutputUserInfo>>> futureList = threadPoolExecutor.invokeAll(this.callables);
+            for (Future<List<OutputUserInfo>> future : futureList) {
+                if (future.isDone()) {
+                    userInfos.addAll(future.get());
+                }
+            }
+
+            System.err.println(userInfos.size());
+            System.err.println(userInfos.stream().collect(Collectors.toSet()).size());
+
+            this.threadPoolExecutor.shutdown();
+
+            ExcelWriter writer = ExcelUtil.getWriter("D:\\" + LocalDate.now()
+                    + StrUtil.DASHED
+                    + System.currentTimeMillis()
+                    + "-tax.xlsx");
+            writer.addHeaderAlias("xm", "姓名");
+            writer.addHeaderAlias("sfz", "身份证");
+            writer.addHeaderAlias("company", "公司");
+
+            // 一次性写出内容
+            writer.write(userInfos, true);
+            // 关闭writer，释放内存
+            writer.close();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+}
