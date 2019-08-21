@@ -44,7 +44,7 @@ public class GetTaskResultUserList implements Runnable {
             System.err.println(userInfos.size());
             System.err.println(userInfos.stream().collect(Collectors.toSet()).size());
 
-            this.threadPoolExecutor.shutdown();
+//            this.threadPoolExecutor.shutdown();
 
             ExcelWriter writer = ExcelUtil.getWriter(SaveFilePath.FILE_PATH + this.fileName + StrUtil.DASHED + LocalDate.now()+ ".xlsx");
             writer.addHeaderAlias("xm", "姓名");

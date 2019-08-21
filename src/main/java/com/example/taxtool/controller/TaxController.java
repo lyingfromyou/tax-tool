@@ -8,6 +8,7 @@ import cn.hutool.poi.excel.ExcelUtil;
 import com.example.taxtool.entity.InputUserInfo;
 import com.example.taxtool.task.GetTaskResultUserList;
 import com.example.taxtool.task.GetUserInfoTask;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,18 +20,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 
 @Controller
 public class TaxController {
 
-    BlockingQueue blockingQueue = new ArrayBlockingQueue<>(15);
-    ThreadPoolExecutor threadPoolExecutor =
-            new ThreadPoolExecutor(5, 10, 1, TimeUnit.MINUTES, blockingQueue);
+    @Autowired
+    ThreadPoolExecutor executor;
 
     @PostMapping(value = "/upload", produces = "application/json; charset=utf-8")
     @ResponseBody
@@ -57,7 +54,7 @@ public class TaxController {
                 List<InputUserInfo> infos = splitList.get(index);
                 callables.add(new GetUserInfoTask(cookie, infos, index));
             }
-            new Thread(new GetTaskResultUserList(callables, threadPoolExecutor, fileName)).start();
+            new Thread(new GetTaskResultUserList(callables, executor, fileName)).start();
             return "ok";
         } else {
             return "说好的文件呢";
