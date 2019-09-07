@@ -2,16 +2,18 @@ package com.example.taxtool.controller;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
+import cn.hutool.core.io.IoUtil;
+import cn.hutool.poi.excel.ExcelReader;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -41,36 +43,29 @@ public class FileController {
         try {
             List<String> fileList = FileUtil.listFileNames(FILE_PATH);
             if (fileList.contains(fileName)) {
-                response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
-                response.setCharacterEncoding("utf-8");
-                byte[] buff = new byte[1024];
-                BufferedInputStream bis = null;
-                OutputStream os;
-                try {
-                    os = response.getOutputStream();
-                    bis = new BufferedInputStream(new FileInputStream(FILE_PATH + fileName));
-                    int i;
-                    while ((i = bis.read(buff)) != -1) {
-                        os.write(buff, 0, i);
-                        os.flush();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } finally {
-                    try {
-                        bis.close();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-                return "Ok";
+                ExcelReader reader = ExcelUtil.getReader(FILE_PATH + fileName);
+                ExcelWriter writer = reader.getWriter();
+                //response为HttpServletResponse对象
+                response.setContentType("application/vnd.ms-excel;charset=utf-8");
+                response.setHeader("Content-Disposition", "attachment;filename=report.xlsx");
+                ServletOutputStream out = response.getOutputStream();
+
+                // 一次性写出内容
+                writer.flush(out, true);
+                // 关闭writer，释放内存
+                writer.close();
+                //关闭输出Servlet流
+                IoUtil.close(out);
             } else {
                 return "没有这个文件";
             }
         } catch (IORuntimeException e) {
             System.err.println(e.getMessage());
             return "没有这个目录";
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return "Ok";
     }
 
 
