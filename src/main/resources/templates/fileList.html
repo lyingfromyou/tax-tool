@@ -6,10 +6,9 @@
 </head>
 <body>
 
-<ul>
-    <li><a th:href="@{/downloadFile?fileName=12}">123 </a></li>
-    <li><a th:href="@{/downloadFile?fileName=12}">123 </a></li>
-    <li><a th:href="@{/downloadFile?fileName=12}">123 </a></li>
+
+<ul th:each="fileName : ${fileList}">
+    <li><a th:href="@{/downloadFile?fileName=${fileName}}">${fileName} </a></li>
 </ul>
 
 </body>
