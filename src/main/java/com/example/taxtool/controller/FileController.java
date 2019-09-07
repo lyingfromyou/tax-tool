@@ -47,7 +47,7 @@ public class FileController {
                 ExcelWriter writer = reader.getWriter();
                 //response为HttpServletResponse对象
                 response.setContentType("application/vnd.ms-excel;charset=utf-8");
-                response.setHeader("Content-Disposition", "attachment;filename=report.xlsx");
+                response.setHeader("Content-Disposition", "attachment;filename=" + fileName);
                 ServletOutputStream out = response.getOutputStream();
 
                 // 一次性写出内容
