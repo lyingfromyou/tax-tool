@@ -69,4 +69,8 @@ public class UserInfo implements Serializable {
      */
     private String xm;
 
+
+
+
+
 }

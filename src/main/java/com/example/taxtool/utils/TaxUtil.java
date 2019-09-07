@@ -35,19 +35,29 @@ public class TaxUtil {
 
 
     public static UserInfo query(String cookie, String xm) {
-        HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
-        request.cookie(cookie);
-        String result = request.execute().body();
-        if (isSuccess(result)) {
-            QueryInfo queryInfo = JSONUtil.toBean(result, QueryInfo.class);
-            for (UserInfo userInfo : queryInfo.getData()) {
-                if (userInfo.getXm().equalsIgnoreCase(xm)) {
-                    return userInfo;
+        return query(cookie, xm, 1);
+    }
+
+    public static UserInfo query(String cookie, String xm, int retry) {
+        if (retry <= 5) {
+            System.err.println("查询 " + xm + " 第: " + retry + " 次");
+            HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
+            request.cookie(cookie);
+            String result = request.execute().body();
+            if (isSuccess(result)) {
+                QueryInfo queryInfo = JSONUtil.toBean(result, QueryInfo.class);
+                for (UserInfo userInfo : queryInfo.getData()) {
+                    if (userInfo.getXm().equalsIgnoreCase(xm)) {
+                        return userInfo;
+                    }
                 }
+            }else {
+                return query(cookie, xm, retry + 1);
             }
         }
         return null;
     }
+
 
 
     public static Boolean create(String cookie, String xm, String sfz) {

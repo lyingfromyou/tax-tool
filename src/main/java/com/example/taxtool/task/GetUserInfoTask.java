@@ -1,5 +1,6 @@
 package com.example.taxtool.task;
 
+import cn.hutool.core.util.StrUtil;
 import com.example.taxtool.entity.InputUserInfo;
 import com.example.taxtool.entity.OutputUserInfo;
 import com.example.taxtool.entity.UserInfo;
@@ -31,27 +32,32 @@ public class GetUserInfoTask implements Callable<List<OutputUserInfo>> {
     @Override
     public List<OutputUserInfo> call() {
         List<OutputUserInfo> userInfos = new ArrayList<>();
-
         for (int i = 0; i < this.inputUserInfos.size(); i++) {
             InputUserInfo inputUserInfo = inputUserInfos.get(i);
             if (TaxUtil.create(cookie, inputUserInfo.getXm(), inputUserInfo.getSfz())) {
-                UserInfo userInfo = TaxUtil.query(cookie,inputUserInfo.getXm());
-                userInfos.add(new OutputUserInfo(userInfo));
-                addSuccess = addSuccess + 1;
-                System.err.println(inputUserInfo.getXm() + " -- 添加成功");
-                if (TaxUtil.remove(cookie, userInfo)) {
-                    System.err.println(userInfo.getXm() + " -- 解除授权成功");
-                    if (TaxUtil.delete(cookie, userInfo)) {
-                        System.err.println(userInfo.getXm() + " -- 删除用户成功");
+                System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 添加成功");
+                UserInfo userInfo = TaxUtil.query(cookie, inputUserInfo.getXm());
+                if (null != userInfo &&
+                        StrUtil.isNotBlank(userInfo.getXm())
+                        && StrUtil.isNotBlank(userInfo.getSfzjhm())
+                        && StrUtil.isNotBlank(userInfo.getQymc())) {
+                    System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 查询成功");
+                    userInfos.add(new OutputUserInfo(userInfo));
+                    addSuccess = addSuccess + 1;
+                    if (TaxUtil.remove(cookie, userInfo)) {
+                        System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 解除授权成功");
+                        if (TaxUtil.delete(cookie, userInfo)) {
+                            System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 删除用户成功");
+                        } else {
+                            System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 删除用户失败");
+                        }
                     } else {
-                        System.err.println(userInfo.getXm() + " -- 删除用户失败");
+                        System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 解除授权失败");
                     }
-                } else {
-                    System.err.println(userInfo.getXm() + " -- 解除授权失败");
-                }
+                } else System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 查询失败");
             } else {
                 addError = addError + 1;
-                System.err.println(inputUserInfo.getXm() + " -- 添加失败");
+                System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 添加失败");
             }
         }
         System.err.println(String.format("task: %s, add success: %s , error: %s", this.task, addSuccess, addError));
