@@ -6,45 +6,30 @@ import cn.hutool.core.io.IoUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
-import org.springframework.stereotype.Controller;
+import com.example.taxtool.utils.CommonConstants;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author by Lying
  * @Date 2019/9/7
  */
-@Controller
+@RestController
 public class FileController {
 
-    private static final String FILE_PATH = "/opt/files/";
-
-    @GetMapping("/fileList")
-    public String fileList(Map<String, Object> paramMap) {
-        try {
-            List<String> fileList = FileUtil.listFileNames(FILE_PATH);
-            paramMap.put("fileList", fileList);
-        } catch (IORuntimeException e) {
-            System.err.println(e.getMessage());
-        }
-        return "fileList";
-    }
-
-    @ResponseBody
     @GetMapping(value = "/downloadFile", produces = "application/json;charset=utf-8")
     public String downloadFile(@RequestParam String fileName, HttpServletResponse response) {
         try {
-            List<String> fileList = FileUtil.listFileNames(FILE_PATH);
+            List<String> fileList = FileUtil.listFileNames(CommonConstants.FILE_PATH);
             if (fileList.contains(fileName)) {
-                ExcelReader reader = ExcelUtil.getReader(FILE_PATH + fileName);
+                ExcelReader reader = ExcelUtil.getReader(CommonConstants.FILE_PATH + fileName);
                 ExcelWriter writer = reader.getWriter();
                 //response为HttpServletResponse对象
                 response.setContentType("application/vnd.ms-excel;charset=utf-8");

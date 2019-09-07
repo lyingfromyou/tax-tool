@@ -8,10 +8,9 @@ import com.example.taxtool.entity.InputUserInfo;
 import com.example.taxtool.task.GetTaskResultUserList;
 import com.example.taxtool.task.GetUserInfoTask;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -21,14 +20,13 @@ import java.util.List;
 import java.util.concurrent.ThreadPoolExecutor;
 
 
-@Controller
+@RestController
 public class TaxController {
 
     @Autowired
     ThreadPoolExecutor executor;
 
     @PostMapping(value = "/upload", produces = "application/json; charset=utf-8")
-    @ResponseBody
     public String upload(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String cookie) throws IOException {
         if (file != null && !file.isEmpty()) {
             if (StrUtil.isBlank(cookie)) {
