@@ -12,5 +12,6 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
     protected void addViewControllers(ViewControllerRegistry registry) {
         registry.addRedirectViewController("/", "/login");
         registry.addViewController("/tax").setViewName("tax");
+        registry.addViewController("/fileList").setViewName("fileList");
     }
 }
