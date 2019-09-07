@@ -6,15 +6,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author by Lying
@@ -23,31 +22,27 @@ import java.util.List;
 @Controller
 public class FileController {
 
-
     private static final String FILE_PATH = "/opt/files/";
 
     @GetMapping("/fileList")
-    public ModelAndView fileList() {
-        ModelAndView mv = new ModelAndView();
+    public String fileList(Map<String, Object> paramMap) {
         try {
             List<String> fileList = FileUtil.listFileNames(FILE_PATH);
-            mv.addObject("fileList", fileList);
+            paramMap.put("fileList", fileList);
         } catch (IORuntimeException e) {
             System.err.println(e.getMessage());
-            mv.addObject("fileList", new ArrayList<>());
         }
-        mv.setViewName("/fileList.html");
-        return mv;
+        return "fileList";
     }
 
     @ResponseBody
-    @GetMapping("/downloadFile")
+    @GetMapping(value = "/downloadFile", produces = "application/json;charset=utf-8")
     public String downloadFile(@RequestParam String fileName, HttpServletResponse response) {
         try {
             List<String> fileList = FileUtil.listFileNames(FILE_PATH);
             if (fileList.contains(fileName)) {
                 response.setHeader("Content-Disposition", "attachment;fileName=" + fileName);
-
+                response.setCharacterEncoding("utf-8");
                 byte[] buff = new byte[1024];
                 BufferedInputStream bis = null;
                 OutputStream os;
