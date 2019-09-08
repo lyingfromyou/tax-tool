@@ -20,9 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URLEncoder;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -55,7 +53,7 @@ public class MergeExcelController {
             fileName = StrUtil.addSuffixIfNot(fileName, ".xlsx");
 
             // 一次性写出内容，使用默认样式，强制输出标题
-            writer.write(mergeUserInfos, true);
+            writer.write(CollUtil.sort(mergeUserInfos, Comparator.comparing(info -> info.getName())), true);
             //out为OutputStream，需要写出到的目标流
 
             //response为HttpServletResponse对象
@@ -70,15 +68,15 @@ public class MergeExcelController {
             //此处记得关闭输出Servlet流
             IoUtil.close(out);
         }
-        System.err.println("一共用时: " + ((System.currentTimeMillis() - start) / 1000) + " 秒");
+        System.err.println("一共用时: " + (System.currentTimeMillis() - start) + " 毫秒");
         return "ok";
     }
 
 
     private Set<MergeUserInfo> handle(List<MultipartFile> phoneFileList, List<MultipartFile> taxFileList) {
         Set<MergeUserInfo> mergeUserInfos = new HashSet<>();
-        Set<UserPhone> totalUserPhoneSet = new HashSet<>();
-        Set<OutputUserInfo> totalUserCompanySet = new HashSet<>();
+        List<UserPhone> totalUserPhoneList = new ArrayList<>();
+        List<OutputUserInfo> totalUserCompanyList = new ArrayList<>();
         for (MultipartFile file : phoneFileList) {
             String originalFilename = file.getOriginalFilename();
             String fileName = originalFilename.substring(0, originalFilename.lastIndexOf("."));
@@ -87,7 +85,7 @@ public class MergeExcelController {
                 ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
                 reader.addHeaderAlias("电话", "phone");
                 reader.addHeaderAlias("姓名", "xm");
-                totalUserPhoneSet.addAll(reader.readAll(UserPhone.class));
+                totalUserPhoneList.addAll(reader.readAll(UserPhone.class));
             } catch (IOException e) {
                 System.err.println("读取" + fileName + "文件失败: " + e.getMessage());
             }
@@ -102,25 +100,26 @@ public class MergeExcelController {
                 reader.addHeaderAlias("姓名", "xm");
                 reader.addHeaderAlias("身份证", "sfz");
                 reader.addHeaderAlias("公司", "company");
-                totalUserCompanySet.addAll(reader.readAll(OutputUserInfo.class));
+                totalUserCompanyList.addAll(reader.readAll(OutputUserInfo.class));
             } catch (IOException e) {
                 System.err.println("读取" + fileName + "文件失败: " + e.getMessage());
             }
         }
 
-        for (UserPhone userPhone : totalUserPhoneSet) {
+        for (UserPhone userPhone : totalUserPhoneList) {
             String xm = userPhone.getXm();
-            Set<OutputUserInfo> singleUserInfoSet = totalUserCompanySet.stream()
+            List<OutputUserInfo> singleUserInfoList = totalUserCompanyList.stream()
                     .filter(info -> (xm.equalsIgnoreCase(info.getXm()) && StrUtil.isNotBlank(info.getCompany())))
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toList());
 
-            if (CollUtil.isNotEmpty(singleUserInfoSet)) {
-                singleUserInfoSet.stream().forEach(user ->
+            if (CollUtil.isNotEmpty(singleUserInfoList)) {
+                singleUserInfoList.stream().forEach(user ->
                         mergeUserInfos.add(new MergeUserInfo(userPhone.getPhone(), xm, user.getCompany()))
                 );
             }
         }
         return mergeUserInfos;
     }
+
 
 }

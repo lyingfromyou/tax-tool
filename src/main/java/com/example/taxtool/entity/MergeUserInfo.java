@@ -24,4 +24,5 @@ public class MergeUserInfo implements Serializable {
 
     private String company;
 
+
 }
