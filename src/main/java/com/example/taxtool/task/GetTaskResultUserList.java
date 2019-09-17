@@ -33,6 +33,7 @@ public class GetTaskResultUserList implements Runnable {
 
     @Override
     public void run() {
+        Long start = System.currentTimeMillis();
         List<OutputUserInfo> userInfos = new ArrayList<>();
         try {
             List<Future<List<OutputUserInfo>>> futureList = threadPoolExecutor.invokeAll(this.callables);
@@ -43,6 +44,7 @@ public class GetTaskResultUserList implements Runnable {
             }
             System.err.println(userInfos.size());
             System.err.println(userInfos.stream().collect(Collectors.toSet()).size());
+            System.err.println("共花费: " + (System.currentTimeMillis() - start) + "  毫秒!");
 
 //            this.threadPoolExecutor.shutdown();
 
