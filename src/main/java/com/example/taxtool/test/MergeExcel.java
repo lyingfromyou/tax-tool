@@ -3,6 +3,8 @@ package com.example.taxtool.test;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 
@@ -36,9 +38,15 @@ public class MergeExcel {
 //            }
 //        }
 
-        File file = new File(BASE_PATH + "2019-08-17-1-tax.xlsx");
-        ExcelReader reader = ExcelUtil.getReader(file);
-        System.err.println(reader.readAll());
+        String url = "https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=10214108000001267547";
+        HttpRequest request = HttpUtil.createGet(url);
+        request.cookie("X-Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJpdHMiLCJzdWIiOiIyMDAwMDAwMDAwOTczMDU4NjQiLCJhdWQiOiJ3ZWIiLCJpYXQiOjE1Njg3MTc3OTQsImV4cCI6MTU2ODcxOTU5NCwienJyZGFoIjoiMTEwMDAwMDAwMjk5NjYzNjA0In0.5pOqcACgeRkgI9ApW2AM6uFyv4vlPVYg9-Ow5O6U8JnZavqUGw3en2x_dMZM-Tx4vjEtTj9tzMXL28kRJtvBxg;");
+        String result = request.execute().body();
+        System.err.println(result);
+
+//        File file = new File(BASE_PATH + "2019-08-17-1-tax.xlsx");
+//        ExcelReader reader = ExcelUtil.getReader(file);
+//        System.err.println(reader.readAll());
     }
 
 

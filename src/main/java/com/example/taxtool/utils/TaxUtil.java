@@ -21,7 +21,6 @@ public class TaxUtil {
     private static final String dwdjxh = "10214108000001267547";
 
 
-
     public static List<UserInfo> queryList(String cookie) {
         HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
         request.cookie(cookie);
@@ -39,6 +38,7 @@ public class TaxUtil {
     }
 
     public static UserInfo query(String cookie, String xm, int retry) {
+        UserInfo resultUser = null;
         if (retry <= 5) {
             System.err.println("查询 " + xm + " 第: " + retry + " 次");
             HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
@@ -48,16 +48,17 @@ public class TaxUtil {
                 QueryInfo queryInfo = JSONUtil.toBean(result, QueryInfo.class);
                 for (UserInfo userInfo : queryInfo.getData()) {
                     if (userInfo.getXm().equalsIgnoreCase(xm)) {
-                        return userInfo;
+                        resultUser = userInfo;
+                        break;
                     }
                 }
-            }else {
+            }
+            if (null == resultUser) {
                 return query(cookie, xm, retry + 1);
             }
         }
-        return null;
+        return resultUser;
     }
-
 
 
     public static Boolean create(String cookie, String xm, String sfz) {
@@ -80,7 +81,7 @@ public class TaxUtil {
 
         request.cookie(cookie);
         Map<String, String> params = new HashMap<>();
-        params.put("dwdjxh",dwdjxh);
+        params.put("dwdjxh", dwdjxh);
         params.put("bsqxlyDm", userInfo.getBsqxlyDm());
         params.put("bsqxlxDm", userInfo.getBsqxlxDm());
         params.put("bsryxh", userInfo.getBsryxh());

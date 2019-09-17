@@ -5,9 +5,12 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.example.taxtool.entity.InputUserInfo;
+import com.example.taxtool.entity.UserInfo;
 import com.example.taxtool.task.GetTaskResultUserList;
 import com.example.taxtool.task.GetUserInfoTask;
+import com.example.taxtool.utils.TaxUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -58,6 +61,28 @@ public class TaxController {
         } else {
             return "说好的文件呢";
         }
+    }
+
+    @PostMapping("/batchDelete")
+    public String batchDelete(@RequestParam(required = false) String cookie){
+        if (StrUtil.isBlank(cookie)) {
+            return "爸的 cookie 呢?";
+        }
+        new Thread(() ->{
+            List<UserInfo> userInfoList = TaxUtil.queryList(cookie);
+            if (CollUtil.isNotEmpty(userInfoList)) {
+                for (UserInfo userInfo : userInfoList) {
+                    if (TaxUtil.remove(cookie, userInfo)) {
+                        System.err.println("移除 "+ userInfo.getXm() + " 成功");
+                        if (TaxUtil.delete(cookie, userInfo)){
+                            System.err.println("删除 "+ userInfo.getXm() + " 成功");
+                        }
+                    }
+                }
+            }
+        }).start();
+
+        return "ok";
     }
 
     private List<List<InputUserInfo>> splitList(List<InputUserInfo> inputUserInfos){
