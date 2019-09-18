@@ -3,12 +3,18 @@
 <head>
     <title>合并信息</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <style>
+        .note {
+            color: red;
+            font-size: 12px;
+        }
+    </style>
 </head>
 <body>
 
 <form method="post" th:action="@{/mergeExcel}" enctype="multipart/form-data">
-    电话信息文件(可以上传多个) <input type="file" name="phoneFileList" multiple><br><br>
-    公司信息文件(可以上传多个)  <input type="file" name="taxFileList" multiple><br><br>
+    电话信息文件(<span class = "note">可以上传多个, 表头必须为 '姓名'、 '电话'</span>) <input type="file" name="phoneFileList" multiple><br><br>
+    公司信息文件(<span class = "note">可以上传多个, 表头必须为 '姓名'、 '公司'</span>)  <input type="file" name="taxFileList" multiple><br><br>
     文件名: <input type="text" name="fileName"><br><br>
     <input type="submit" value="提交">
 </form>
