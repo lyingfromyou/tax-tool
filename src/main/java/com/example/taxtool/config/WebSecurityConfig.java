@@ -19,7 +19,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()//允许基于HttpServletRequest使用限制访问
-                .antMatchers("/", "/login").permitAll()//不需要身份认证
+                .antMatchers("/", "/login","/static/**").permitAll()//不需要身份认证
                 .anyRequest().authenticated()//其他路径必须验证身份
                 .and()
                 .formLogin()
@@ -28,6 +28,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .permitAll()
                 .and()
                 .logout().permitAll().deleteCookies("JSESSIONID");//退出删除cookie
+        super.configure(http);
+        http.authorizeRequests().antMatchers("*").permitAll();
     }
 
     @Autowired

@@ -39,8 +39,7 @@ public class GetUserInfoTask implements Callable<List<OutputUserInfo>> {
                 UserInfo userInfo = TaxUtil.query(cookie, inputUserInfo.getXm());
                 if (null != userInfo &&
                         StrUtil.isNotBlank(userInfo.getXm())
-                        && StrUtil.isNotBlank(userInfo.getSfzjhm())
-                        && StrUtil.isNotBlank(userInfo.getQymc())) {
+                        && StrUtil.isNotBlank(userInfo.getSfzjhm())) {
                     System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 查询成功");
                     userInfos.add(new OutputUserInfo(userInfo));
                     addSuccess = addSuccess + 1;

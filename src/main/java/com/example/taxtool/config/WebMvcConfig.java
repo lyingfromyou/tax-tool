@@ -1,6 +1,7 @@
 package com.example.taxtool.config;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 
@@ -13,5 +14,15 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         registry.addRedirectViewController("/", "/login");
         registry.addViewController("/tax").setViewName("tax");
         registry.addViewController("/fileList").setViewName("fileList");
+    }
+
+    @Override
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**")
+                .addResourceLocations("classpath:/META-INF/resources/")
+                .addResourceLocations("classpath:/resources/")
+                .addResourceLocations("classpath:/static/")
+                .addResourceLocations("classpath:/public/");
+        super.addResourceHandlers(registry);
     }
 }

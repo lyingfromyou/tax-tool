@@ -10,7 +10,6 @@ import com.example.taxtool.task.GetTaskResultUserList;
 import com.example.taxtool.task.GetUserInfoTask;
 import com.example.taxtool.utils.TaxUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,8 +41,8 @@ public class TaxController {
 
             System.err.println(cookie);
             ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
-            reader.addHeaderAlias("客户姓名", "xm");
-            reader.addHeaderAlias("身份证号", "sfz");
+            reader.addHeaderAlias("姓名", "xm");
+            reader.addHeaderAlias("身份证", "sfz");
             List<InputUserInfo> inputUserInfos = reader.readAll(InputUserInfo.class);
 
             if (CollUtil.isNotEmpty(inputUserInfos) && inputUserInfos.size() > 1000) {
