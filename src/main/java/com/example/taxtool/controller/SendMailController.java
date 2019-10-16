@@ -6,15 +6,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.example.taxtool.entity.SendMailInfo;
-import com.mailjet.client.ClientOptions;
-import com.mailjet.client.MailjetClient;
-import com.mailjet.client.MailjetRequest;
-import com.mailjet.client.MailjetResponse;
-import com.mailjet.client.errors.MailjetException;
-import com.mailjet.client.errors.MailjetSocketTimeoutException;
-import com.mailjet.client.resource.Emailv31;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -116,35 +107,6 @@ public class SendMailController {
     }
 
 
-    public static void main(String[] args) throws IOException, MailjetSocketTimeoutException, MailjetException {
-        MailjetClient client;
-        MailjetRequest request;
-        MailjetResponse response;
-        client = new MailjetClient(
-                "421f456e32ea5567fb56be9fb5847d1a",
-                "dde6f6ded459f2ce4f1469e2a428acb5",
-                new ClientOptions("v3.1"));
-
-
-        request = new MailjetRequest(Emailv31.resource)
-                .property(Emailv31.MESSAGES, new JSONArray()
-                        .put(new JSONObject()
-                                .put(Emailv31.Message.FROM, new JSONObject()
-                                        .put("Email", "liqian0213@gmail.com")
-                                        .put("Name", "notice_template"))
-                                .put(Emailv31.Message.TO, new JSONArray()
-                                        .put(new JSONObject()
-                                                .put("Email", "183023840@qq.com")
-                                                .put("Name", "passenger 1")))
-                                .put(Emailv31.Message.TEMPLATEID, 1039708)
-                                .put(Emailv31.Message.TEMPLATELANGUAGE, true)
-                                .put(Emailv31.Message.SUBJECT, "通知")
-                                .put(Emailv31.Message.VARIABLES, new JSONObject()
-                                        .put("name", "李乾"))));
-        response = client.post(request);
-        System.out.println(response.getStatus());
-        System.out.println(response.getData());
-    }
 
 
 }

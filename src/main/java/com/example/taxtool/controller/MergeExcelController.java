@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
+import com.example.taxtool.entity.CommonUserInfo;
 import com.example.taxtool.entity.MergeUserInfo;
 import com.example.taxtool.entity.OutputUserInfo;
 import com.example.taxtool.entity.UserPhone;
@@ -18,7 +19,7 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,6 +30,7 @@ import java.util.stream.Collectors;
  */
 @RestController
 public class MergeExcelController {
+
 
     @PostMapping(value = "/mergeExcel", produces = "application/json; charset=utf-8")
     public String mergeExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam String fileName) throws IOException {
@@ -43,23 +45,35 @@ public class MergeExcelController {
             return "公司信息不能为空";
         }
 
-        Set<MergeUserInfo> mergeUserInfos = handle(phoneFileList, taxFileList);
+        List<CommonUserInfo> unMatchedUser = new ArrayList<>();
+
+        Set<MergeUserInfo> mergeUserInfos = handle(phoneFileList, taxFileList, unMatchedUser);
         if (CollUtil.isNotEmpty(mergeUserInfos)) {
-            ExcelWriter writer = ExcelUtil.getWriter(true);
+            ExcelWriter writer = new ExcelWriter(true, "合并信息");
             writer.addHeaderAlias("phone", "电话");
             writer.addHeaderAlias("name", "姓名");
             writer.addHeaderAlias("company", "公司");
-
-            fileName = StrUtil.addSuffixIfNot(fileName, ".xlsx");
-
             // 一次性写出内容，使用默认样式，强制输出标题
             writer.write(CollUtil.sort(mergeUserInfos, Comparator.comparing(info -> info.getName())), true);
-            //out为OutputStream，需要写出到的目标流
 
+            if (CollUtil.isNotEmpty(unMatchedUser)) {
+                writer.setSheet("未合并信息");
+                writer.addHeaderAlias("phone", "电话");
+                writer.addHeaderAlias("xm", "姓名");
+                writer.addHeaderAlias("company", "公司");
+                writer.addHeaderAlias("sfz", "身份证");
+
+                // 一次性写出内容，使用默认样式，强制输出标题
+                writer.write(unMatchedUser, true);
+
+            }
+
+            fileName = StrUtil.addSuffixIfNot(fileName, ".xlsx");
             //response为HttpServletResponse对象
             response.setContentType("application/vnd.ms-excel;charset=utf-8");
             //test.xls是弹出下载对话框的文件名，不能为中文，中文请自行编码
             response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "utf-8"));
+            //out为OutputStream，需要写出到的目标流
             ServletOutputStream out = response.getOutputStream();
 
             writer.flush(out, true);
@@ -73,7 +87,8 @@ public class MergeExcelController {
     }
 
 
-    private Set<MergeUserInfo> handle(List<MultipartFile> phoneFileList, List<MultipartFile> taxFileList) {
+    private Set<MergeUserInfo> handle(List<MultipartFile> phoneFileList, List<MultipartFile> taxFileList,
+                                      List<CommonUserInfo> unMatchedUser) {
         Set<MergeUserInfo> mergeUserInfos = new HashSet<>();
         List<UserPhone> totalUserPhoneList = new ArrayList<>();
         List<OutputUserInfo> totalUserCompanyList = new ArrayList<>();
@@ -85,9 +100,20 @@ public class MergeExcelController {
                 ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
                 reader.addHeaderAlias("电话", "phone");
                 reader.addHeaderAlias("姓名", "xm");
-                totalUserPhoneList.addAll(reader.readAll(UserPhone.class));
+                totalUserPhoneList.addAll(reader.readAll(UserPhone.class).stream()
+                        .filter(userPhone -> StrUtil.isNotBlank(userPhone.getPhone()))
+                        .collect(Collectors.toList()));
             } catch (IOException e) {
                 System.err.println("读取" + fileName + "文件失败: " + e.getMessage());
+            }
+        }
+
+        String userName = "";
+        for (UserPhone userPhone : totalUserPhoneList) {
+            if (StrUtil.isNotBlank(userPhone.getXm())) {
+                userName = userPhone.getXm();
+            }else {
+                userPhone.setXm(userName);
             }
         }
 
@@ -100,7 +126,11 @@ public class MergeExcelController {
                 reader.addHeaderAlias("姓名", "xm");
                 reader.addHeaderAlias("身份证", "sfz");
                 reader.addHeaderAlias("公司", "company");
-                totalUserCompanyList.addAll(reader.readAll(OutputUserInfo.class));
+                totalUserCompanyList.addAll(reader.readAll(OutputUserInfo.class).stream()
+                        .filter(outputUserInfo ->
+                                StrUtil.isNotBlank(outputUserInfo.getXm()) &&
+                                        StrUtil.isNotBlank(outputUserInfo.getCompany()))
+                        .collect(Collectors.toList()));
             } catch (IOException e) {
                 System.err.println("读取" + fileName + "文件失败: " + e.getMessage());
             }
@@ -118,8 +148,71 @@ public class MergeExcelController {
                 );
             }
         }
+
+        for (UserPhone userPhone : totalUserPhoneList) {
+            boolean flag = false;
+            for (OutputUserInfo outputUserInfo : totalUserCompanyList) {
+                if (outputUserInfo.getXm().equals(userPhone.getXm())) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) {
+                unMatchedUser.add(new CommonUserInfo(userPhone));
+            }
+        }
+
+        for (OutputUserInfo outputUserInfo : totalUserCompanyList) {
+            boolean flag = false;
+            for (UserPhone userPhone : totalUserPhoneList) {
+                if (outputUserInfo.getXm().equals(userPhone.getXm())) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (!flag) {
+                unMatchedUser.add(new CommonUserInfo(outputUserInfo));
+            }
+        }
         return mergeUserInfos;
     }
 
+
+    public static void downloadFile(File file, HttpServletResponse response, boolean isDelete) {
+        BufferedInputStream fis = null;
+        OutputStream toClient = null;
+        try {
+            // 以流的形式下载文件。
+            fis = new BufferedInputStream(new FileInputStream(file.getPath()));
+            // 清空response
+            response.reset();
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition",
+                    "attachment;filename=" + new String(file.getName().getBytes("UTF-8"), "ISO-8859-1"));
+            byte[] buffer = new byte[1024 * 1024];
+            int byteRead = 0;
+            while ((byteRead = fis.read(buffer)) != -1) {
+                toClient.write(buffer, 0, byteRead);
+            }
+            toClient.flush();
+            if (isDelete) {
+                file.delete(); // 是否将生成的服务器端文件删除
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
