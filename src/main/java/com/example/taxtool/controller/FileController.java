@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -72,7 +73,7 @@ public class FileController {
         String fileName = file.getOriginalFilename();
         System.err.println(fileName);
         FileUtil.writeFromStream(file.getInputStream(), UPLOAD_FILE_PATH + id + StrUtil.SLASH + fileName);
-        return "localhost/file/download?fileId=" + id;
+        return InetAddress.getLocalHost().getHostAddress() + "/file/download?fileId=" + id;
     }
 
     @GetMapping("/file/download")
@@ -107,8 +108,9 @@ public class FileController {
             }
             toClient.flush();
             if (isDelete) {
-                FileUtil.del(UPLOAD_FILE_PATH + fileId);
-                file.delete(); // 是否将生成的服务器端文件删除
+
+                boolean delete = FileUtil.del(UPLOAD_FILE_PATH + fileId);
+                System.err.println(delete);
             }
         } catch (IOException ex) {
             ex.printStackTrace();

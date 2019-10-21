@@ -1,6 +1,5 @@
 package com.example.taxtool.test;
 
-import cn.hutool.core.util.StrUtil;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
@@ -12,6 +11,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -114,9 +115,10 @@ public class SendTest2 {
     }
 
     @Test
-    public void test3(){
-        String s = "asfasdfasdfasd-1111.xlsx";
-        String fileName = StrUtil.subAfter(s, StrUtil.DASHED,true);
-        System.err.println(fileName);
+    public void test3() throws UnknownHostException {
+//        String s = "asfasdfasdfasd-1111.xlsx";
+//        String fileName = StrUtil.subAfter(s, StrUtil.DASHED,true);
+//        System.err.println(fileName);
+        System.err.println( InetAddress.getLocalHost().getHostAddress());
     }
 }
