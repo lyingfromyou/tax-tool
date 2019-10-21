@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.InetAddress;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -73,7 +72,7 @@ public class FileController {
         String fileName = file.getOriginalFilename();
         System.err.println(fileName);
         FileUtil.writeFromStream(file.getInputStream(), UPLOAD_FILE_PATH + id + StrUtil.SLASH + fileName);
-        return InetAddress.getLocalHost().getHostAddress() + "/file/download?fileId=" + id;
+        return  "129.28.131.210/file/download?fileId=" + id;
     }
 
     @GetMapping("/file/download")
