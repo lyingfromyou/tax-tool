@@ -75,7 +75,7 @@ public class FileController {
         return  "129.28.131.210/file/download?fileId=" + id;
     }
 
-    @GetMapping("/file/download")
+    @GetMapping(value = "/file/download", produces = "application/json; charset=utf-8")
     public String fileDownload(@RequestParam String fileId, HttpServletResponse response) {
         List<File> localFiles = FileUtil.loopFiles(UPLOAD_FILE_PATH + fileId);
         if (CollUtil.isNotEmpty(localFiles)) {
@@ -83,7 +83,7 @@ public class FileController {
             downloadFile(fileId, localFile, response, true);
             return "ok";
         } else {
-            return "没有文件";
+            return "没有这个文件, 检查你的路径";
         }
     }
 
