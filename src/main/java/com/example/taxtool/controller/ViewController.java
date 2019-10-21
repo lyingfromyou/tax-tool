@@ -32,4 +32,11 @@ public class ViewController {
         return "fileList";
     }
 
+
+    @GetMapping("/fileUpload")
+    public String fileUpload(){
+        return "fileUpload";
+    }
+
+
 }

@@ -1,19 +1,24 @@
 package com.example.taxtool.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.example.taxtool.utils.CommonConstants;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLEncoder;
 import java.util.List;
 
@@ -23,6 +28,9 @@ import java.util.List;
  */
 @RestController
 public class FileController {
+
+    private static final String UPLOAD_FILE_PATH = "/tmp/uploadFile/";
+
 
     @GetMapping(value = "/downloadFile", produces = "application/json;charset=utf-8")
     public String downloadFile(@RequestParam String fileName, HttpServletResponse response) {
@@ -54,5 +62,68 @@ public class FileController {
         return "Ok";
     }
 
+    @PostMapping(value = "/file/upload", produces = "application/json; charset=utf-8")
+    public String fileUpload(@RequestParam("file") MultipartFile file) throws IOException {
+        if (file.isEmpty()) {
+            return "没有文件";
+        }
+
+        String id = IdUtil.fastSimpleUUID();
+        String fileName = file.getOriginalFilename();
+        System.err.println(fileName);
+        FileUtil.writeFromStream(file.getInputStream(), UPLOAD_FILE_PATH + id + StrUtil.SLASH + fileName);
+        return "localhost/file/download?fileId=" + id;
+    }
+
+    @GetMapping("/file/download")
+    public String fileDownload(@RequestParam String fileId, HttpServletResponse response) {
+        List<File> localFiles = FileUtil.loopFiles(UPLOAD_FILE_PATH + fileId);
+        if (CollUtil.isNotEmpty(localFiles)) {
+            File localFile = localFiles.get(0);
+            downloadFile(fileId, localFile, response, true);
+            return "ok";
+        } else {
+            return "没有文件";
+        }
+    }
+
+
+    public static void downloadFile(String fileId, File file, HttpServletResponse response, boolean isDelete) {
+        BufferedInputStream fis = null;
+        OutputStream toClient = null;
+        try {
+            // 以流的形式下载文件。
+            fis = new BufferedInputStream(new FileInputStream(file.getPath()));
+            // 清空response
+            response.reset();
+            toClient = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream");
+            response.setHeader("Content-Disposition",
+                    "attachment;filename=" + new String(file.getName().getBytes("UTF-8"), "ISO-8859-1"));
+            byte[] buffer = new byte[1024 * 1024];
+            int byteRead = 0;
+            while ((byteRead = fis.read(buffer)) != -1) {
+                toClient.write(buffer, 0, byteRead);
+            }
+            toClient.flush();
+            if (isDelete) {
+                FileUtil.del(UPLOAD_FILE_PATH + fileId);
+                file.delete(); // 是否将生成的服务器端文件删除
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        } finally {
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+                if (toClient != null) {
+                    toClient.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
 }
