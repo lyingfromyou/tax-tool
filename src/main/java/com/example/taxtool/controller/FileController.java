@@ -4,12 +4,13 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IORuntimeException;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.example.taxtool.utils.CommonConstants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -28,6 +29,9 @@ import java.util.List;
  */
 @RestController
 public class FileController {
+
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     private static final String UPLOAD_FILE_PATH = "/tmp/uploadFile/";
 
@@ -68,11 +72,20 @@ public class FileController {
             return "没有文件";
         }
 
-        String id = IdUtil.fastSimpleUUID();
+        String beforeId = stringRedisTemplate.opsForValue().get(CommonConstants.UPLOAD_FILE_ID_KEY);
+        String id;
+        if (StrUtil.isBlank(beforeId)) {
+            id = "1";
+        } else {
+            id = String.valueOf(Long.valueOf(beforeId) + 1);
+        }
+        stringRedisTemplate.opsForValue().set(CommonConstants.UPLOAD_FILE_ID_KEY, id);
+
+
         String fileName = file.getOriginalFilename();
         System.err.println(fileName);
         FileUtil.writeFromStream(file.getInputStream(), UPLOAD_FILE_PATH + id + StrUtil.SLASH + fileName);
-        return  "129.28.131.210/file/download?fileId=" + id;
+        return "129.28.131.210/file/download?fileId=" + id;
     }
 
     @GetMapping(value = "/file/download", produces = "application/json; charset=utf-8")
