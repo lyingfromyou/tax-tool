@@ -18,3 +18,8 @@ spring:
     host: 127.0.0.1
   # Redis服务器连接端口
     port: 6379
+
+minio:
+  url: http://129.28.131.210:9000
+  access-key: nzq
+  secret-key: 12345678
