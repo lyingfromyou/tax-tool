@@ -1,5 +1,6 @@
 package com.example.taxtool.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
@@ -74,38 +75,46 @@ public class SendMailController {
             }
         }
 
-        doSend(title, name, sendMailInfos);
-        return "ok";
+        return doSend(title, name, sendMailInfos);
     }
 
 
-    private void doSend(final String title, final String name, Set<SendMailInfo> sendMailInfos) throws Exception {
+    private String doSend(final String title, final String name, Set<SendMailInfo> sendMailInfos) throws Exception {
         MailjetClient client;
         MailjetRequest request;
         MailjetResponse response;
         client = new MailjetClient(key, secret, new ClientOptions("v3.1"));
 
-        JSONArray sendMsgs = new JSONArray();
-        request = new MailjetRequest(Emailv31.resource).property(Emailv31.MESSAGES, sendMsgs);
+        StringBuilder builder = new StringBuilder();
+        builder.append("200 代表 成功, 其他的就是有问题");
+        builder.append("-------------------------------------");
+        builder.append(StrUtil.CRLF);
 
-        for (SendMailInfo sendMailInfo : sendMailInfos) {
-            sendMsgs.put(new JSONObject()
-                    .put(Emailv31.Message.FROM, new JSONObject()
-                            .put("Email", from)
-                            .put("Name", name)
-                    )
-                    .put(Emailv31.Message.TO, new JSONArray()
-                            .put(new JSONObject()
-                                    .put("Email", sendMailInfo.getMail())
-                            ))
-                    .put(Emailv31.Message.SUBJECT, title)
-                    .put(Emailv31.Message.TEXTPART, sendMailInfo.getContent()));
-//                    .put(Emailv31.Message.HTMLPART, "<h3>Dear passenger 2, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!<br />May the delivery force be with you!"));
+        for (List<SendMailInfo> splitList : CollUtil.split(sendMailInfos, 50)) {
+            JSONArray sendMsgs = new JSONArray();
+            request = new MailjetRequest(Emailv31.resource).property(Emailv31.MESSAGES, sendMsgs);
 
+            for (SendMailInfo sendMailInfo : splitList) {
+                sendMsgs.put(new JSONObject()
+                        .put(Emailv31.Message.FROM, new JSONObject()
+                                .put("Email", from)
+                                .put("Name", name)
+                        )
+                        .put(Emailv31.Message.TO, new JSONArray()
+                                .put(new JSONObject()
+                                        .put("Email", sendMailInfo.getMail())
+                                ))
+                        .put(Emailv31.Message.SUBJECT, title)
+                        .put(Emailv31.Message.TEXTPART, sendMailInfo.getContent()));
+            }
+            response = client.post(request);
+            System.out.println(response.getStatus());
+            System.out.println(response.getData());
+            builder.append(response.getData());
+            builder.append(StrUtil.CRLF);
+            builder.append(StrUtil.CRLF);
         }
-        response = client.post(request);
-        System.out.println(response.getStatus());
-        System.out.println(response.getData());
+        return builder.toString();
     }
 
 
