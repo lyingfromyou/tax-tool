@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.example.taxtool.entity.SendMailInfo;
+import com.example.taxtool.utils.GsonUtil;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
 import com.mailjet.client.MailjetRequest;
@@ -87,6 +88,7 @@ public class SendMailController {
 
         StringBuilder builder = new StringBuilder();
         builder.append("200 代表 成功, 其他的就是有问题");
+        builder.append(StrUtil.CRLF);
         builder.append("-------------------------------------");
         builder.append(StrUtil.CRLF);
 
@@ -108,9 +110,11 @@ public class SendMailController {
                         .put(Emailv31.Message.TEXTPART, sendMailInfo.getContent()));
             }
             response = client.post(request);
-            System.out.println(response.getStatus());
-            System.out.println(response.getData());
-            builder.append(response.getData());
+            GsonUtil.dump(response);
+
+            builder.append(response.getStatus());
+            builder.append(StrUtil.CRLF);
+            builder.append(GsonUtil.toJson(response.getData()));
             builder.append(StrUtil.CRLF);
             builder.append(StrUtil.CRLF);
         }
