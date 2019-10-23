@@ -1,5 +1,6 @@
 package com.example.taxtool.controller;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -55,11 +57,12 @@ public class SendMailController {
             return "邮件内容不能为空";
         }
 
-
         Set<SendMailInfo> sendMailInfos = new HashSet<>();
         for (MultipartFile file : files) {
             try {
-                ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
+                String fileName = file.getOriginalFilename();
+                File localFile = FileUtil.writeFromStream(file.getInputStream(), "/tmp/send_mail_file/" + fileName);
+                ExcelReader reader = ExcelUtil.getReader(localFile);
                 List<Map<String, Object>> infos = reader.readAll();
                 for (Map<String, Object> row : infos) {
                     String str = StrUtil.format(content, row);
