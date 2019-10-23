@@ -25,6 +25,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/static/**",
                         "/downloadFile",
                         "/fileUpload",
+                        "/sendMail",
                         "/file/**"
                 ).permitAll()//不需要身份认证
                 .anyRequest().authenticated()//其他路径必须验证身份

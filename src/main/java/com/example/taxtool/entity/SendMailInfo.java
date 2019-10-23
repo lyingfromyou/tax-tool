@@ -18,9 +18,9 @@ import java.io.Serializable;
 public class SendMailInfo implements Serializable {
 
     /**
-     * 姓名
+     * 邮件内容
      */
-    private String xm;
+    private String content;
 
     /**
      * 邮箱地址

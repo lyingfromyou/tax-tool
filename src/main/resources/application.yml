@@ -1,18 +1,6 @@
 server:
   port: 80
 
-spring:
-  mail:
-    host: smtp.huaqiutong.net
-    username: adstool@huaqiutong.net
-    password: huaqiutongAds.
-    default-encoding: UTF-8
-    properties:
-      mail.smtp:
-        port: 465
-        auth: true
-        ssl.enable: true
-
   redis:
   # Redis服务器地址
     host: 127.0.0.1
@@ -23,3 +11,8 @@ minio:
   url: http://129.28.131.210:9000
   access-key: nzq
   secret-key: 12345678
+
+mailjet:
+  key: 421f456e32ea5567fb56be9fb5847d1a
+  secret: dde6f6ded459f2ce4f1469e2a428acb5
+  from: 121453698@qq.com

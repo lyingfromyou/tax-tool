@@ -1,26 +1,28 @@
 package com.example.taxtool.controller;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.example.taxtool.entity.SendMailInfo;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.mailjet.client.ClientOptions;
+import com.mailjet.client.MailjetClient;
+import com.mailjet.client.MailjetRequest;
+import com.mailjet.client.MailjetResponse;
+import com.mailjet.client.resource.Emailv31;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author by Lying
@@ -29,17 +31,18 @@ import java.util.stream.Collectors;
 @RestController
 public class SendMailController {
 
-    @Value("${spring.mail.username}")
-    private String form;
-
-    @Autowired
-    private JavaMailSender mailSender;
-
+    @Value("${mailjet.from}")
+    private String from;
+    @Value("${mailjet.key}")
+    private String key;
+    @Value("${mailjet.secret}")
+    private String secret;
 
     @PostMapping("/sendMail")
     public String sendMail(@RequestParam(value = "files", required = false) MultipartFile[] files,
+                           @RequestParam(required = false) String name,
                            @RequestParam(required = false) String title,
-                           @RequestParam(required = false) String content) {
+                           @RequestParam(required = false) String content) throws Exception {
         if (ArrayUtil.isEmpty(files)) {
             return "没有文件";
         }
@@ -57,56 +60,50 @@ public class SendMailController {
         for (MultipartFile file : files) {
             try {
                 ExcelReader reader = ExcelUtil.getReader(file.getInputStream());
-                reader.addHeaderAlias("姓名", "xm");
-                reader.addHeaderAlias("邮箱", "mail");
-                List<SendMailInfo> infos = reader.readAll(SendMailInfo.class);
-                if (CollUtil.isNotEmpty(infos)) {
-                    sendMailInfos.addAll(infos);
+                List<Map<String, Object>> infos = reader.readAll();
+                for (Map<String, Object> row : infos) {
+                    String str = StrUtil.format(content, row);
+                    String mail = row.get("邮箱").toString();
+                    sendMailInfos.add(new SendMailInfo(str, mail));
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        if (CollUtil.isNotEmpty(sendMailInfos)) {
-            List<SimpleMailMessage> messageList = buildMailMessages(title, content, sendMailInfos);
-
-            new Thread(() ->
-                    mailSender.send(messageList.toArray(new SimpleMailMessage[messageList.size()]))
-            ).start();
-
-
-        } else {
-            return "文件内容为空, 或解析文件失败";
-        }
-
+        doSend(title, name, sendMailInfos);
         return "ok";
     }
 
 
-    private List<SimpleMailMessage> buildMailMessages(final String title, final String content, Set<SendMailInfo> sendMailInfos) {
+    private void doSend(final String title, final String name, Set<SendMailInfo> sendMailInfos) throws Exception {
+        MailjetClient client;
+        MailjetRequest request;
+        MailjetResponse response;
+        client = new MailjetClient(key, secret, new ClientOptions("v3.1"));
 
+        JSONArray sendMsgs = new JSONArray();
+        request = new MailjetRequest(Emailv31.resource).property(Emailv31.MESSAGES, sendMsgs);
 
-        sendMailInfos.stream().filter(sendMailInfo ->
-                StrUtil.isNotBlank(sendMailInfo.getMail()) && StrUtil.isNotBlank(sendMailInfo.getXm()))
-                .map(sendMailInfo -> {
-                    SimpleMailMessage message = new SimpleMailMessage();
+        for (SendMailInfo sendMailInfo : sendMailInfos) {
+            sendMsgs.put(new JSONObject()
+                    .put(Emailv31.Message.FROM, new JSONObject()
+                            .put("Email", from)
+                            .put("Name", name)
+                    )
+                    .put(Emailv31.Message.TO, new JSONArray()
+                            .put(new JSONObject()
+                                    .put("Email", sendMailInfo.getMail())
+                            ))
+                    .put(Emailv31.Message.SUBJECT, title)
+                    .put(Emailv31.Message.TEXTPART, sendMailInfo.getContent()));
+//                    .put(Emailv31.Message.HTMLPART, "<h3>Dear passenger 2, welcome to <a href=\"https://www.mailjet.com/\">Mailjet</a>!<br />May the delivery force be with you!"));
 
-
-                    message.setFrom(form);
-                    message.setTo(sendMailInfo.getMail());
-                    message.setSubject(title);
-                    message.setText(content);
-
-
-                    return message;
-                }).collect(Collectors.toList());
-
-
-        return new ArrayList<>();
+        }
+        response = client.post(request);
+        System.out.println(response.getStatus());
+        System.out.println(response.getData());
     }
-
-
 
 
 }

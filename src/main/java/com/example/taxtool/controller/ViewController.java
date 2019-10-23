@@ -39,4 +39,9 @@ public class ViewController {
     }
 
 
+
+    @GetMapping("/sendMail")
+    public String sendMailPage(){
+        return "sendMail";
+    }
 }
