@@ -41,7 +41,7 @@ public class SendMailController {
     @Value("${mailjet.secret}")
     private String secret;
 
-    @PostMapping("/sendMail")
+    @PostMapping(value = "/sendMail", produces = "application/json; charset=utf-8")
     public String sendMail(@RequestParam(value = "files", required = false) MultipartFile[] files,
                            @RequestParam(required = false) String name,
                            @RequestParam(required = false) String title,
@@ -70,11 +70,11 @@ public class SendMailController {
                     String mail = row.get("邮箱").toString();
                     sendMailInfos.add(new SendMailInfo(str, mail));
                 }
+                FileUtil.del(localFile.getAbsolutePath());
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
-
         return doSend(title, name, sendMailInfos);
     }
 
@@ -97,12 +97,12 @@ public class SendMailController {
             for (SendMailInfo sendMailInfo : splitList) {
                 sendMsgs.put(new JSONObject()
                         .put(Emailv31.Message.FROM, new JSONObject()
-                                .put("Email", from)
-                                .put("Name", name)
+                                .put(Emailv31.Message.EMAIL, from)
+                                .put(Emailv31.Message.NAME, name)
                         )
                         .put(Emailv31.Message.TO, new JSONArray()
                                 .put(new JSONObject()
-                                        .put("Email", sendMailInfo.getMail())
+                                        .put(Emailv31.Message.EMAIL, sendMailInfo.getMail())
                                 ))
                         .put(Emailv31.Message.SUBJECT, title)
                         .put(Emailv31.Message.TEXTPART, sendMailInfo.getContent()));
