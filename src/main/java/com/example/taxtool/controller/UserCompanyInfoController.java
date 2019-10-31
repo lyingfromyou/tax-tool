@@ -23,12 +23,12 @@ import java.util.concurrent.ThreadPoolExecutor;
 
 
 @RestController
-public class TaxController {
+public class UserCompanyInfoController {
 
     @Autowired
     ThreadPoolExecutor executor;
 
-    @PostMapping(value = "/upload", produces = "application/json; charset=utf-8")
+    @PostMapping(value = "/handleCompanyInfo", produces = "application/json; charset=utf-8")
     public String upload(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String cookie) throws IOException {
         if (file != null && !file.isEmpty()) {
             if (StrUtil.isBlank(cookie)) {
@@ -62,7 +62,7 @@ public class TaxController {
         }
     }
 
-    @PostMapping("/batchDelete")
+    @PostMapping("/batchDelExistUserInfo")
     public String batchDelete(@RequestParam(required = false) String cookie){
         if (StrUtil.isBlank(cookie)) {
             return "爸的 cookie 呢?";

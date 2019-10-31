@@ -31,8 +31,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()//其他路径必须验证身份
                 .and()
                 .formLogin()
-                .successForwardUrl("/tax")
-                .defaultSuccessUrl("/tax", true)
+                .successForwardUrl("/homePage")
+                .defaultSuccessUrl("/homePage", true)
                 .permitAll()
                 .and()
                 .logout().permitAll().deleteCookies("JSESSIONID");//退出删除cookie

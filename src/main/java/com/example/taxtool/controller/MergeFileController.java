@@ -29,10 +29,10 @@ import java.util.stream.Collectors;
  * @Date 2019/9/7
  */
 @RestController
-public class MergeExcelController {
+public class MergeFileController {
 
 
-    @PostMapping(value = "/mergeExcel", produces = "application/json; charset=utf-8")
+    @PostMapping(value = "/mergeFile", produces = "application/json; charset=utf-8")
     public String mergeExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam String fileName) throws IOException {
         long start = System.currentTimeMillis();
         //获取上传的文件数组

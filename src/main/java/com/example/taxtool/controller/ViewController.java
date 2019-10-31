@@ -16,32 +16,37 @@ import java.util.Map;
 @Controller
 public class ViewController {
 
-    @GetMapping("/mergeView")
-    public String mergeView(){
-        return "mergeView";
+    @GetMapping("/sendMailPage")
+    public String sendMailPage(){
+        return "sendMailPage";
     }
 
-    @GetMapping("/fileList")
-    public String fileList(Map<String, Object> paramMap) {
+    @GetMapping("/userCompanyInfoPage")
+    public String userCompanyInfoPage(){
+        return "userCompanyInfoPage";
+    }
+
+    @GetMapping("/mergeFilePage")
+    public String mergeFilePage(){
+        return "mergeFilePage";
+    }
+
+    @GetMapping("/fileListPage")
+    public String fileListPage(Map<String, Object> paramMap) {
         try {
-            List<String> fileList = FileUtil.listFileNames(CommonConstants.FILE_PATH);
+            List<String> fileList = FileUtil.listFileNames(CommonConstants.COMPANY_INFO_FILE_PATH);
             paramMap.put("fileList", fileList);
         } catch (IORuntimeException e) {
             System.err.println(e.getMessage());
         }
-        return "fileList";
+        return "fileListPage";
     }
 
 
-    @GetMapping("/fileUpload")
-    public String fileUpload(){
-        return "fileUpload";
+    @GetMapping("/fileUploadAndDownloadPage")
+    public String fileUploadAndDownloadPage(){
+        return "fileUploadAndDownloadPage";
     }
 
 
-
-    @GetMapping("/sendMail")
-    public String sendMailPage(){
-        return "sendMail";
-    }
 }

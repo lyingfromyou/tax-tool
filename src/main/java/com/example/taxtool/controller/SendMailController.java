@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.example.taxtool.entity.SendMailInfo;
+import com.example.taxtool.utils.CommonConstants;
 import com.example.taxtool.utils.GsonUtil;
 import com.mailjet.client.ClientOptions;
 import com.mailjet.client.MailjetClient;
@@ -63,7 +64,7 @@ public class SendMailController {
         for (MultipartFile file : files) {
             try {
                 String fileName = file.getOriginalFilename();
-                File localFile = FileUtil.writeFromStream(file.getInputStream(), "/tmp/send_mail_file/" + fileName);
+                File localFile = FileUtil.writeFromStream(file.getInputStream(), CommonConstants.SEND_MAIL_FILE_PATH + fileName);
                 ExcelReader reader = ExcelUtil.getReader(localFile);
                 List<Map<String, Object>> infos = reader.readAll();
                 for (Map<String, Object> row : infos) {
