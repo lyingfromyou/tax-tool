@@ -24,5 +24,5 @@ public interface CommonConstants {
     /**
      * 发送邮件的上传文件路径
      */
-    String SEND_MAIL_FILE_PATH = "/opt/files/send_Mail_File_path/";
+    String SEND_MAIL_FILE_PATH = "/opt/files/send_mail_file_path/";
 }
