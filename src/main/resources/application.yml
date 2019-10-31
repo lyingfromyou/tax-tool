@@ -1,11 +1,13 @@
 server:
   port: 80
 
+spring:
   redis:
     # Redis服务器地址
     host: 127.0.0.1
     # Redis服务器连接端口
     port: 6379
+    password: huaqiutongAds
 
 minio:
   url: http://129.28.131.210:9000

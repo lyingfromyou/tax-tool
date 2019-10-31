@@ -6,6 +6,8 @@
 </head>
 <body>
 
+<h2 th:text="${#lists.size(fileList)} > 0 ? '共有'+ ${#lists.size(fileList)} + '条数据' : '没有文件'"></h2>
+
 
 <ul th:each="fileName : ${fileList}">
     <li><a th:href="@{'/downloadCompanyInfoFile?fileName='+ ${fileName}}" th:text="${fileName}"> </a></li>
