@@ -38,7 +38,7 @@ public class MergeExcel {
 //            }
 //        }
 
-        String url = "https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=10113418010000026435";
+        String url = "https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=10113502000023347432";
         HttpRequest request = HttpUtil.createGet(url);
         request.cookie("X-Authorization=eyJhbGciOiJIUzUxMiJ9.eyJpc3MiOiJpdHMiLCJzdWIiOiIyMDAwMDAwMDAwOTczMDU4NjQiLCJhdWQiOiJ3ZWIiLCJpYXQiOjE1Njg3MTc3OTQsImV4cCI6MTU2ODcxOTU5NCwienJyZGFoIjoiMTEwMDAwMDAwMjk5NjYzNjA0In0.5pOqcACgeRkgI9ApW2AM6uFyv4vlPVYg9-Ow5O6U8JnZavqUGw3en2x_dMZM-Tx4vjEtTj9tzMXL28kRJtvBxg;");
         String result = request.execute().body();

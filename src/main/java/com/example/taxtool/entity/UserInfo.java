@@ -18,7 +18,7 @@ public class UserInfo implements Serializable {
     private String zrrdah;
     /**
      * 删除参数
-     * 登记序号 10113418010000026435 固定
+     * 登记序号 10113502000023347432 固定
      */
     private String dwdjxh;
     /**

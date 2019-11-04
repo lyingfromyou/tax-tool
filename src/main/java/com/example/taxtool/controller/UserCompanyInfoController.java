@@ -5,10 +5,10 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import com.example.taxtool.entity.InputUserInfo;
-import com.example.taxtool.entity.UserInfo;
 import com.example.taxtool.task.GetTaskResultUserList;
 import com.example.taxtool.task.GetUserInfoTask;
-import com.example.taxtool.utils.TaxUtil;
+import com.example.taxtool.task.RemoveAndDeleteUser;
+import com.example.taxtool.utils.BalanceUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,7 +49,7 @@ public class UserCompanyInfoController {
                 return "不要超过1000条数据";
             }
 
-            List<List<InputUserInfo>> splitList = splitList(inputUserInfos);
+            List<List<InputUserInfo>> splitList = BalanceUtil.balance(inputUserInfos);
             Collection<GetUserInfoTask> callables = new ArrayList<>();
             for (int index = 0; index < splitList.size(); index++) {
                 List<InputUserInfo> infos = splitList.get(index);
@@ -67,45 +67,8 @@ public class UserCompanyInfoController {
         if (StrUtil.isBlank(cookie)) {
             return "爸的 cookie 呢?";
         }
-        new Thread(() ->{
-            List<UserInfo> userInfoList = TaxUtil.queryList(cookie);
-            System.err.println("userInfoList size: " + userInfoList.size());
-            if (CollUtil.isNotEmpty(userInfoList)) {
-                for (UserInfo userInfo : userInfoList) {
-                    if (TaxUtil.remove(cookie, userInfo)) {
-                        System.err.println("移除 "+ userInfo.getXm() + " 成功");
-                        if (TaxUtil.delete(cookie, userInfo)){
-                            System.err.println("删除 "+ userInfo.getXm() + " 成功");
-                        }
-                    }
-                }
-            }
-        }).start();
-
+        new Thread(new RemoveAndDeleteUser(cookie, executor)).start();
         return "ok";
-    }
-
-    private List<List<InputUserInfo>> splitList(List<InputUserInfo> inputUserInfos){
-        if (CollUtil.isNotEmpty(inputUserInfos)) {
-            if (inputUserInfos.size() <= 50) {
-                return CollUtil.split(inputUserInfos, 10);
-            } else if (inputUserInfos.size() <= 100) {
-                return CollUtil.split(inputUserInfos, 20);
-            } else if (inputUserInfos.size() <= 150) {
-                return CollUtil.split(inputUserInfos, 30);
-            } else if (inputUserInfos.size() <= 200) {
-                return CollUtil.split(inputUserInfos, 40);
-            } else if (inputUserInfos.size() <= 300) {
-                return CollUtil.split(inputUserInfos, 60);
-            } else if (inputUserInfos.size() <= 500) {
-                return CollUtil.split(inputUserInfos, 100);
-            } else if (inputUserInfos.size() <= 900) {
-                return CollUtil.split(inputUserInfos, 150);
-            } else if (inputUserInfos.size() <= 1000) {
-                return CollUtil.split(inputUserInfos, 180);
-            }
-        }
-        return null;
     }
 
 }
