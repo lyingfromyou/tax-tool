@@ -23,7 +23,8 @@ public class TaxUtil {
 //    https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=10113418010000026435&_=1572831898066
 
     public static List<UserInfo> queryList(String cookie) {
-        HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
+        HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh)
+                .timeout(1000 * 60);
         request.cookie(cookie);
         String result = request.execute().body();
         if (isSuccess(result)) {
@@ -42,7 +43,8 @@ public class TaxUtil {
         UserInfo resultUser = null;
         if (retry <= 5) {
             System.err.println("查询 " + xm + " 第: " + retry + " 次");
-            HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
+            HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh)
+                    .timeout(1000 * 60);
             request.cookie(cookie);
             String result = request.execute().body();
             if (isSuccess(result)) {
@@ -63,7 +65,8 @@ public class TaxUtil {
 
 
     public static Boolean create(String cookie, String xm, String sfz) {
-        HttpRequest request = HttpUtil.createPost("https://its.hljtax.gov.cn/web/zrr/sqbs/bsryxx/add?");
+        HttpRequest request = HttpUtil.createPost("https://its.hljtax.gov.cn/web/zrr/sqbs/bsryxx/add?")
+                .timeout(1000 * 60);
         request.cookie(cookie);
         Map<String, String> params = new HashMap<>();
         params.put("dwdjxh", dwdjxh);
@@ -78,7 +81,8 @@ public class TaxUtil {
     }
 
     public static Boolean remove(String cookie, UserInfo userInfo) {
-        HttpRequest request = HttpUtil.createPost("https://its.hljtax.gov.cn/web/zrr/sqbs/bsryxx/qy/remove?");
+        HttpRequest request = HttpUtil.createPost("https://its.hljtax.gov.cn/web/zrr/sqbs/bsryxx/qy/remove?")
+                .timeout(1000 * 60);
 
         request.cookie(cookie);
         Map<String, String> params = new HashMap<>();
@@ -96,7 +100,8 @@ public class TaxUtil {
     }
 
     public static Boolean delete(String cookie, UserInfo userInfo) {
-        HttpRequest request = HttpUtil.createPost("https://its.hljtax.gov.cn/web/zrr/sqbs/bsryxx/qy/delete?");
+        HttpRequest request = HttpUtil.createPost("https://its.hljtax.gov.cn/web/zrr/sqbs/bsryxx/qy/delete?")
+                .timeout(1000 * 60);
         request.cookie(cookie);
 
         Map<String, String> params = new HashMap<>();

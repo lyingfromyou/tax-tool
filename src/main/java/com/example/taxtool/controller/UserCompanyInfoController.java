@@ -69,6 +69,7 @@ public class UserCompanyInfoController {
         }
         new Thread(() ->{
             List<UserInfo> userInfoList = TaxUtil.queryList(cookie);
+            System.err.println("userInfoList size: " + userInfoList.size());
             if (CollUtil.isNotEmpty(userInfoList)) {
                 for (UserInfo userInfo : userInfoList) {
                     if (TaxUtil.remove(cookie, userInfo)) {
