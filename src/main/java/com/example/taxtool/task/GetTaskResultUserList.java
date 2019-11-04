@@ -3,8 +3,8 @@ package com.example.taxtool.task;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
-import com.example.taxtool.config.SaveFilePath;
 import com.example.taxtool.entity.OutputUserInfo;
+import com.example.taxtool.utils.CommonConstants;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -47,8 +47,7 @@ public class GetTaskResultUserList implements Runnable {
             System.err.println("共花费: " + (System.currentTimeMillis() - start) + "  毫秒!");
 
 //            this.threadPoolExecutor.shutdown();
-
-            ExcelWriter writer = ExcelUtil.getWriter(SaveFilePath.FILE_PATH + this.fileName + StrUtil.DASHED + LocalDate.now()+ ".xlsx");
+            ExcelWriter writer = ExcelUtil.getWriter(CommonConstants.COMPANY_INFO_FILE_PATH + this.fileName + StrUtil.DASHED + LocalDate.now() + ".xlsx");
             writer.addHeaderAlias("xm", "姓名");
             writer.addHeaderAlias("sfz", "身份证");
             writer.addHeaderAlias("company", "公司");
