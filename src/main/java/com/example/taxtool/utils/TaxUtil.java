@@ -18,8 +18,9 @@ public class TaxUtil {
     /**
      * 登记序号
      */
-    private static final String dwdjxh = "10214108000001267547";
+    private static final String dwdjxh = "10113418010000026435";
 
+//    https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=10113418010000026435&_=1572831898066
 
     public static List<UserInfo> queryList(String cookie) {
         HttpRequest request = HttpUtil.createGet("https://its.hljtax.gov.cn/web/zrr/sqbs/qybsryxx/query?dwdjxh=" + dwdjxh);
