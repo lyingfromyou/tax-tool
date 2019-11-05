@@ -1,11 +1,14 @@
 package com.example.taxtool.task;
 
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.taxtool.entity.InputUserInfo;
 import com.example.taxtool.entity.OutputUserInfo;
 import com.example.taxtool.entity.UserInfo;
+import com.example.taxtool.utils.CommonConstants;
 import com.example.taxtool.utils.TaxUtil;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -21,45 +24,69 @@ public class GetUserInfoTask implements Callable<List<OutputUserInfo>> {
 
     private String cookie;
     private Integer task;
+    private String fileName;
     private List<InputUserInfo> inputUserInfos;
 
-    public GetUserInfoTask(String cookie, List<InputUserInfo> inputUserInfos, Integer task) {
+    public GetUserInfoTask(String cookie, List<InputUserInfo> inputUserInfos, Integer task, String fileName) {
         this.cookie = cookie;
         this.inputUserInfos = inputUserInfos;
         this.task = task;
+        this.fileName = fileName;
     }
 
     @Override
     public List<OutputUserInfo> call() {
         List<OutputUserInfo> userInfos = new ArrayList<>();
+        File log = FileUtil.mkdir(CommonConstants.TAX_HANDLE_LOG_PATH + fileName + StrUtil.SLASH + "log_task_" + this.task);
+        String msg = "";
         for (int i = 0; i < this.inputUserInfos.size(); i++) {
             InputUserInfo inputUserInfo = inputUserInfos.get(i);
             if (TaxUtil.create(cookie, inputUserInfo.getXm(), inputUserInfo.getSfz())) {
-                System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 添加成功");
+                msg = "task " + this.task + ": " + inputUserInfo.getXm() + " -- 添加成功";
+                FileUtil.appendUtf8String(msg, log);
+                System.err.println(msg);
                 UserInfo userInfo = TaxUtil.query(cookie, inputUserInfo.getXm());
                 if (null != userInfo &&
                         StrUtil.isNotBlank(userInfo.getXm())
                         && StrUtil.isNotBlank(userInfo.getSfzjhm())) {
-                    System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 查询成功");
+                    msg = "task " + this.task + ": " + inputUserInfo.getXm() + " -- 查询成功";
+                    FileUtil.appendUtf8String(msg, log);
+                    System.err.println(msg);
                     userInfos.add(new OutputUserInfo(userInfo));
                     addSuccess = addSuccess + 1;
                     if (TaxUtil.remove(cookie, userInfo)) {
-                        System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 解除授权成功");
+                        msg = "task " + this.task + ": " + userInfo.getXm() + " -- 解除授权成功";
+                        FileUtil.appendUtf8String(msg, log);
+                        System.err.println(msg);
                         if (TaxUtil.delete(cookie, userInfo)) {
-                            System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 删除用户成功");
+                            msg = "task " + this.task + ": " + userInfo.getXm() + " -- 删除用户成功";
+                            FileUtil.appendUtf8String(msg, log);
+                            System.err.println(msg);
                         } else {
-                            System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 删除用户失败");
+                            msg = "task " + this.task + ": " + userInfo.getXm() + " -- 删除用户失败";
+                            FileUtil.appendUtf8String(msg, log);
+                            System.err.println(msg);
                         }
                     } else {
-                        System.err.println("task " + this.task + ": " + userInfo.getXm() + " -- 解除授权失败");
+                        msg = "task " + this.task + ": " + userInfo.getXm() + " -- 解除授权失败";
+                        FileUtil.appendUtf8String(msg, log);
+                        System.err.println(msg);
                     }
-                } else System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 查询失败");
+                } else {
+                    msg = "task " + this.task + ": " + inputUserInfo.getXm() + " -- 查询失败";
+                    FileUtil.appendUtf8String(msg, log);
+                    System.err.println(msg);
+                }
             } else {
                 addError = addError + 1;
-                System.err.println("task " + this.task + ": " + inputUserInfo.getXm() + " -- 添加失败");
+                msg = "task " + this.task + ": " + inputUserInfo.getXm() + " -- 添加失败";
+                FileUtil.appendUtf8String(msg, log);
+                System.err.println(msg);
             }
         }
-        System.err.println(String.format("task: %s, add success: %s , error: %s", this.task, addSuccess, addError));
+        msg = String.format("task: %s, add success: %s , error: %s", this.task, addSuccess, addError);
+        FileUtil.appendUtf8String(msg, log);
+        System.err.println(msg);
         return userInfos;
     }
 

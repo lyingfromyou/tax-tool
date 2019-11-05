@@ -14,7 +14,7 @@
                 <legend>上传文件</legend>
                 <form method="post" th:action="@{/file/upload}" enctype="multipart/form-data">
                     <input type="file" name="file">
-                    <span class="note">文件下载之后就会删除(文件不会保留太久, 上传之后请立即操作, 过期删除不负责)</span>
+                    <span class="note">文件下载之后就会删除(文件最多保留一天, 过期删除不负责)</span>
                     <br><br>
                     <input type="submit" value="提交">
                 </form>

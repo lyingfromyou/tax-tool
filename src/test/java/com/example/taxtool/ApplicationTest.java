@@ -3,6 +3,7 @@ package com.example.taxtool;
 import cn.hutool.core.io.FileUtil;
 import com.example.taxtool.service.MinioTemplate;
 import com.example.taxtool.utils.CheckMail;
+import com.example.taxtool.utils.MailUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.io.File;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.List;
@@ -40,5 +42,15 @@ public class ApplicationTest {
     public void test2(){
             List<String> mails = CheckMail.check(Arrays.asList("984945343@qq.com", "941185245@qq.com"));
             System.err.println(mails);
+    }
+
+
+    @Autowired
+    MailUtil mailUtil;
+
+    @Test
+    public void test3() {
+        List<File> logs = FileUtil.loopFiles("C:\\Users\\Lying\\Desktop\\先");
+        mailUtil.sendMail("183023840@qq.com", "无主题", "没内容", logs.toArray(new File[logs.size()]));
     }
 }

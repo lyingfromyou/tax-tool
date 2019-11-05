@@ -91,7 +91,7 @@ public class SendMailController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
-    @PostMapping("/verification")
+    @PostMapping(value = "/verification", produces = "application/json; charset=utf-8")
     public String verification(@RequestParam("file") MultipartFile file) throws IOException {
         if (null != file && !file.isEmpty()) {
             String fileName = file.getOriginalFilename();

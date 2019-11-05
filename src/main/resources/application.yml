@@ -9,6 +9,16 @@ spring:
     port: 6379
     password: nieqin
 
+  mail:
+    host: smtp.163.com
+    username: 16670409213@163.com
+    password: sanpang1112
+    default-encoding: UTF-8
+    properties.mail.smtp:
+      auth: true
+      starttls.enable: true
+      starttls.required: true
+
 minio:
   url: http://129.28.131.210:9000
   access-key: nzq
@@ -23,3 +33,5 @@ mailjet:
 logging:
   level:
     root: info
+
+

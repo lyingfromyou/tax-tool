@@ -29,10 +29,15 @@ public class UserCompanyInfoController {
     ThreadPoolExecutor executor;
 
     @PostMapping(value = "/handleCompanyInfo", produces = "application/json; charset=utf-8")
-    public String upload(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String cookie) throws IOException {
+    public String upload(@RequestParam("file") MultipartFile file, @RequestParam(required = false) String cookie,
+                         @RequestParam("email") String email) throws IOException {
         if (file != null && !file.isEmpty()) {
             if (StrUtil.isBlank(cookie)) {
                 return "爸爸的 cookie 呢?";
+            }
+
+            if (StrUtil.isBlank(email)) {
+                return "没填邮箱";
             }
 
             String originalFilename = file.getOriginalFilename();
@@ -53,9 +58,9 @@ public class UserCompanyInfoController {
             Collection<GetUserInfoTask> callables = new ArrayList<>();
             for (int index = 0; index < splitList.size(); index++) {
                 List<InputUserInfo> infos = splitList.get(index);
-                callables.add(new GetUserInfoTask(cookie, infos, index));
+                callables.add(new GetUserInfoTask(cookie, infos, index, fileName));
             }
-            new Thread(new GetTaskResultUserList(callables, executor, fileName)).start();
+            new Thread(new GetTaskResultUserList(callables, executor, fileName,email)).start();
             return "ok";
         } else {
             return "说好的文件呢";
@@ -63,7 +68,7 @@ public class UserCompanyInfoController {
     }
 
     @PostMapping("/batchDelExistUserInfo")
-    public String batchDelete(@RequestParam(required = false) String cookie){
+    public String batchDelete(@RequestParam(required = false) String cookie) {
         if (StrUtil.isBlank(cookie)) {
             return "爸的 cookie 呢?";
         }

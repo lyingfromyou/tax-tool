@@ -36,5 +36,9 @@ public interface CommonConstants {
      */
     String VERIFICATION_MAIL_RESULT_FILE_PATH = "/opt/files/verification_result_mail/";
 
+    /**
+     * 执行日志
+     */
+    String TAX_HANDLE_LOG_PATH = "/opt/files/tax_handle_log/";
 
 }

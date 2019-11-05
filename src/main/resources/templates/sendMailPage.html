@@ -17,21 +17,24 @@
                     自定义发件人名字: <input type="text" name="name"></input><br><br>
                     邮件标题: <input type="text" name="title"></input><br><br>
                     邮件内容: <textarea name="content" rows="10" cols="50"></textarea>
-                    <span class="note">变量使用{} 括起来, 与表头对应, 例如: 文件表头为姓名 , 则在输入框中为{姓名}</span>
+                    <span class="note">变量使用{} 括起来, 与表头对应, 例如: 文件表头为姓名 , 则在输入框中为{姓名}, {}必须为英文括号, 也就是输入法中的半{}</span>
                     <br><br>
                     <input type="file" name="files" multiple>
                     <span class="note">表头必须与变量对应, 必须要有一个表头为 邮箱</span>
                     <br><br>
                     <input type="submit" value="提交">
                 </form>
-
-                <HR>
-
+            </fieldset>
+        </div>
+        <HR><br><br>
+        <div>
+            <fieldset>
                 <legend>验证邮箱</legend>
-                <form th:action="@{/mail/verification}" method="post">
+                <form th:action="@{/mail/verification}" method="post" enctype="multipart/form-data">
                     <input type="file" name="file">
-                    <span class="note">表头必须为 '邮箱'</span>
+                    <span class="note">表头必须为 '邮箱', 文件下载之后就会删除(文件最多保留一天, 过期删除不负责)</span>
                     <br><br>
+                    <span class="note">先上传邮箱文件, 会显示一个地址, 等个三五分钟之后再访问地址, 即可下载验证结果文件</span>
                     <input type="submit" value="提交">
                 </form>
             </fieldset>
