@@ -25,4 +25,16 @@ public interface CommonConstants {
      * 发送邮件的上传文件路径
      */
     String SEND_MAIL_FILE_PATH = "/opt/files/send_mail_file_path/";
+
+    /**
+     * 验证邮箱的文件保存路径
+     */
+    String VERIFICATION_MAIL_FILE_PATH = "/opt/files/verification_mail/";
+
+    /**
+     * 验证结果
+     */
+    String VERIFICATION_MAIL_RESULT_FILE_PATH = "/opt/files/verification_result_mail/";
+
+
 }

@@ -12,8 +12,8 @@
     <div>
         <div>
             <fieldset>
-                <legend>上传身份信息</legend>
-                <form method="post" th:action="@{/sendMail}" enctype="multipart/form-data">
+                <legend>发送邮件</legend>
+                <form method="post" th:action="@{/mail/send}" enctype="multipart/form-data">
                     自定义发件人名字: <input type="text" name="name"></input><br><br>
                     邮件标题: <input type="text" name="title"></input><br><br>
                     邮件内容: <textarea name="content" rows="10" cols="50"></textarea>
@@ -21,6 +21,16 @@
                     <br><br>
                     <input type="file" name="files" multiple>
                     <span class="note">表头必须与变量对应, 必须要有一个表头为 邮箱</span>
+                    <br><br>
+                    <input type="submit" value="提交">
+                </form>
+
+                <HR>
+
+                <legend>验证邮箱</legend>
+                <form th:action="@{/mail/verification}" method="post">
+                    <input type="file" name="file">
+                    <span class="note">表头必须为 '邮箱'</span>
                     <br><br>
                     <input type="submit" value="提交">
                 </form>
