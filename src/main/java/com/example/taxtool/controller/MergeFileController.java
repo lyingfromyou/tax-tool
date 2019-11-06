@@ -68,7 +68,9 @@ public class MergeFileController {
         String content = String.format("合并 %s 个文件, 一共用时: %s 毫秒. ", fileList.size(),
                 System.currentTimeMillis() - start);
         System.err.println(content);
-        mailUtil.sendMail(email, "合并文件结果", content, FileUtil.file(savePath));
+        new Thread(() -> {
+            mailUtil.sendMail(email, "合并文件结果", content, FileUtil.file(savePath));
+        }).start();
         return "合并完成, 请注意查收";
     }
 

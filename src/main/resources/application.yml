@@ -19,6 +19,7 @@ spring:
       auth: true
       starttls.enable: true
       starttls.required: true
+      ssl.enable: true
 
 minio:
   url: http://129.28.131.210:9000
