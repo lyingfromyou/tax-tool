@@ -41,4 +41,15 @@ public interface CommonConstants {
      */
     String TAX_HANDLE_LOG_PATH = "/opt/files/tax_handle_log/";
 
+    /**
+     * 合并文件上传路径
+     */
+    String MERGE_FILE_UPLOAD_PATH = "/opt/files/merge_file_upload_path/";
+
+    /**
+     * 合并文件下载路径
+     */
+    String MERGE_FILE_PATH = "/opt/files/merge_file_path/";
+
+
 }

@@ -1,7 +1,7 @@
 package com.example.taxtool.controller;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
@@ -10,17 +10,18 @@ import com.example.taxtool.entity.CommonUserInfo;
 import com.example.taxtool.entity.MergeUserInfo;
 import com.example.taxtool.entity.OutputUserInfo;
 import com.example.taxtool.entity.UserPhone;
+import com.example.taxtool.utils.CommonConstants;
+import com.example.taxtool.utils.MailUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.net.URLEncoder;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -31,60 +32,100 @@ import java.util.stream.Collectors;
 @RestController
 public class MergeFileController {
 
+    @Autowired
+    private MailUtil mailUtil;
 
     @PostMapping(value = "/mergeFile", produces = "application/json; charset=utf-8")
-    public String mergeExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam String fileName) throws IOException {
+    public String mergeExcel(HttpServletRequest request, @RequestParam String fileName,
+                             @RequestParam String email, @RequestParam String mergeKey) {
         long start = System.currentTimeMillis();
         //获取上传的文件数组
-        List<MultipartFile> phoneFileList = ((MultipartHttpServletRequest) request).getFiles("phoneFileList");
-        List<MultipartFile> taxFileList = ((MultipartHttpServletRequest) request).getFiles("taxFileList");
-        if (CollUtil.isEmpty(phoneFileList)) {
-            return "电话信息文件不能为空";
-        }
-        if (CollUtil.isEmpty(taxFileList)) {
-            return "公司信息不能为空";
+        List<MultipartFile> fileList = ((MultipartHttpServletRequest) request).getFiles("fileList");
+        if (CollUtil.isEmpty(fileList)) {
+            return "文件列表不能为空";
         }
 
-        List<CommonUserInfo> unMatchedUser = new ArrayList<>();
-
-        Set<MergeUserInfo> mergeUserInfos = handle(phoneFileList, taxFileList, unMatchedUser);
-        if (CollUtil.isNotEmpty(mergeUserInfos)) {
-            ExcelWriter writer = new ExcelWriter(true, "合并信息");
-            writer.addHeaderAlias("phone", "电话");
-            writer.addHeaderAlias("name", "姓名");
-            writer.addHeaderAlias("company", "公司");
-            // 一次性写出内容，使用默认样式，强制输出标题
-            writer.write(CollUtil.sort(mergeUserInfos, Comparator.comparing(info -> info.getName())), true);
-
-            if (CollUtil.isNotEmpty(unMatchedUser)) {
-                writer.setSheet("未合并信息");
-                writer.addHeaderAlias("phone", "电话");
-                writer.addHeaderAlias("xm", "姓名");
-                writer.addHeaderAlias("company", "公司");
-                writer.addHeaderAlias("sfz", "身份证");
-
-                // 一次性写出内容，使用默认样式，强制输出标题
-                writer.write(unMatchedUser, true);
-
+        List<File> localFileList = new ArrayList<>();
+        for (MultipartFile multipartFile : fileList) {
+            try {
+                File localFile = FileUtil.writeFromStream(
+                        multipartFile.getInputStream(),
+                        CommonConstants.MERGE_FILE_UPLOAD_PATH + multipartFile.getOriginalFilename());
+                localFileList.add(localFile);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-
-            fileName = StrUtil.addSuffixIfNot(fileName, ".xlsx");
-            //response为HttpServletResponse对象
-            response.setContentType("application/vnd.ms-excel;charset=utf-8");
-            //test.xls是弹出下载对话框的文件名，不能为中文，中文请自行编码
-            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "utf-8"));
-            //out为OutputStream，需要写出到的目标流
-            ServletOutputStream out = response.getOutputStream();
-
-            writer.flush(out, true);
-            // 关闭writer，释放内存
-            writer.close();
-            //此处记得关闭输出Servlet流
-            IoUtil.close(out);
         }
-        System.err.println("一共用时: " + (System.currentTimeMillis() - start) + " 毫秒");
-        return "ok";
+        Map<String, Map<String, String>> data = mergeFile(localFileList, mergeKey);
+        ExcelWriter writer = ExcelUtil.getWriter(true);
+        writer.write(data.values());
+
+        String savePath = CommonConstants.MERGE_FILE_PATH + fileName;
+        writer.flush(FileUtil.newFile(savePath));
+        writer.close();
+        localFileList.stream().forEach(file -> FileUtil.del(file.getAbsolutePath()));
+
+        String content = String.format("合并 %s 个文件, 一共用时: %s 毫秒. ", fileList.size(),
+                System.currentTimeMillis() - start);
+        System.err.println(content);
+        mailUtil.sendMail(email, "合并文件结果", content, FileUtil.file(savePath));
+        return "合并完成, 请注意查收";
     }
+
+
+//    @PostMapping(value = "/mergeFile", produces = "application/json; charset=utf-8")
+//    public String mergeExcel(HttpServletRequest request, HttpServletResponse response, @RequestParam String fileName) throws IOException {
+//        long start = System.currentTimeMillis();
+//        //获取上传的文件数组
+//        List<MultipartFile> phoneFileList = ((MultipartHttpServletRequest) request).getFiles("phoneFileList");
+//        List<MultipartFile> taxFileList = ((MultipartHttpServletRequest) request).getFiles("taxFileList");
+//        if (CollUtil.isEmpty(phoneFileList)) {
+//            return "电话信息文件不能为空";
+//        }
+//        if (CollUtil.isEmpty(taxFileList)) {
+//            return "公司信息不能为空";
+//        }
+//
+//        List<CommonUserInfo> unMatchedUser = new ArrayList<>();
+//
+//        Set<MergeUserInfo> mergeUserInfos = handle(phoneFileList, taxFileList, unMatchedUser);
+//        if (CollUtil.isNotEmpty(mergeUserInfos)) {
+//            ExcelWriter writer = new ExcelWriter(true, "合并信息");
+//            writer.addHeaderAlias("phone", "电话");
+//            writer.addHeaderAlias("name", "姓名");
+//            writer.addHeaderAlias("company", "公司");
+//            // 一次性写出内容，使用默认样式，强制输出标题
+//            writer.write(CollUtil.sort(mergeUserInfos, Comparator.comparing(info -> info.getName())), true);
+//
+//            if (CollUtil.isNotEmpty(unMatchedUser)) {
+//                writer.setSheet("未合并信息");
+//                writer.addHeaderAlias("phone", "电话");
+//                writer.addHeaderAlias("xm", "姓名");
+//                writer.addHeaderAlias("company", "公司");
+//                writer.addHeaderAlias("sfz", "身份证");
+//
+//                // 一次性写出内容，使用默认样式，强制输出标题
+//                writer.write(unMatchedUser, true);
+//
+//            }
+//
+//            fileName = StrUtil.addSuffixIfNot(fileName, ".xlsx");
+//            //response为HttpServletResponse对象
+//            response.setContentType("application/vnd.ms-excel;charset=utf-8");
+//            //test.xls是弹出下载对话框的文件名，不能为中文，中文请自行编码
+//            response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "utf-8"));
+//            //out为OutputStream，需要写出到的目标流
+//            ServletOutputStream out = response.getOutputStream();
+//
+//            writer.flush(out, true);
+//            // 关闭writer，释放内存
+//            writer.close();
+//            //此处记得关闭输出Servlet流
+//            IoUtil.close(out);
+//        }
+//        System.err.println("一共用时: " + (System.currentTimeMillis() - start) + " 毫秒");
+//        return "ok";
+//    }
 
 
     private Set<MergeUserInfo> handle(List<MultipartFile> phoneFileList, List<MultipartFile> taxFileList,
@@ -112,7 +153,7 @@ public class MergeFileController {
         for (UserPhone userPhone : totalUserPhoneList) {
             if (StrUtil.isNotBlank(userPhone.getXm())) {
                 userName = userPhone.getXm();
-            }else {
+            } else {
                 userPhone.setXm(userName);
             }
         }
@@ -214,5 +255,39 @@ public class MergeFileController {
             }
         }
     }
+
+    public static Map<String, Map<String, String>> mergeFile(List<File> fileList, String key) {
+        Map<String, Map<String, String>> allData = new HashMap<>();
+        for (File file : fileList) {
+            ExcelReader reader = ExcelUtil.getReader(file);
+            List<Map<String, Object>> list = reader.readAll();
+            for (Map<String, Object> map : list) {
+                if (map.containsKey(key)) {
+                    String keyVal = map.get(key).toString();
+                    Map<String, String> data;
+                    if (allData.containsKey(keyVal)) {
+                        data = allData.get(keyVal);
+                    } else {
+                        data = new HashMap<>();
+                        allData.put(keyVal, data);
+                    }
+
+                    map.entrySet().stream().forEach(entry -> {
+                        String entryKey = entry.getKey();
+                        String entryVal = entry.getValue() != null ? entry.getValue().toString() : "";
+                        if (data.containsKey(entryKey) && !key.equals(entryKey)) {
+                            String oldVal = data.get(entryKey);
+                            if (StrUtil.isNotBlank(oldVal)) {
+                                entryVal = String.join(" ,", oldVal, entryVal);
+                            }
+                        }
+                        data.put(entryKey, entryVal);
+                    });
+                }
+            }
+        }
+        return allData;
+    }
+
 
 }

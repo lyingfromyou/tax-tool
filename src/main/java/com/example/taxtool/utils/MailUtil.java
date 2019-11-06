@@ -13,6 +13,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
 
+import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.io.File;
 import java.time.LocalDateTime;
@@ -97,25 +98,26 @@ public class MailUtil {
     }
 
     public void sendMail(String to, String subject, String content, File... files) {
-		MimeMessage message = mailSender.createMimeMessage();
-		try {
-			MimeMessageHelper helper = new MimeMessageHelper(message, true);
-			helper.setFrom(form);
-			helper.setTo(to);
-			helper.setSubject(subject);
-			helper.setText(content);
-			if (ArrayUtil.isNotEmpty(files)) {
-				for (File file : files) {
-					String fileName = FileUtil.getName(file);
-					helper.addAttachment(fileName, file);
-				}
-			}
-			mailSender.send(message);
-			log.info(LocalDateTime.now() + " -> send appendix email to " + to + ", success");
-		} catch (Exception e) {
-			e.printStackTrace();
-			log.info(LocalDateTime.now() + " -> send appendix email to " + to + ", error");
-		}
+        MimeMessage message = mailSender.createMimeMessage();
+        try {
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setFrom(new InternetAddress(form, "工具", "UTF-8"));
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+            helper.setText(content);
+            if (ArrayUtil.isNotEmpty(files)) {
+                for (File file : files) {
+                    String fileName = FileUtil.getName(file);
+                    helper.addAttachment(fileName, file);
+                }
+            }
+            mailSender.send(message);
+            log.info(LocalDateTime.now() + " -> send appendix email to " + to + ", success");
+        } catch (Exception e) {
+            e.printStackTrace();
+            log.info(LocalDateTime.now() + " -> send appendix email to " + to + ", error");
+        }
 
     }
 

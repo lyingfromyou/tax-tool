@@ -8,12 +8,18 @@
 <body>
 
 <form method="post" th:action="@{/mergeFile}" enctype="multipart/form-data">
-    电话信息文件(<span class = "note">可以上传多个, 表头必须为 '姓名'、 '电话'. 文件自动补全空白电话信息</span>) <input type="file" name="phoneFileList" multiple><br><br>
+    待合并文件(<span class="note">* 可以上传多个, 必填</span>) <input type="file" name="fileList" multiple><br><br>
+    文件名(<span class="note">* 必填</span>): <input type="text" name="fileName"><br><br>
+    合并键(<span class="note">* 必填</span>): <input type="text" name="mergeKey"><br><br>
+    合并之后接收文件的邮箱(<span class="note">* 必填</span>): <input type="text" name="email"><br><br>
 
-    公司信息文件(<span class = "note">可以上传多个, 表头必须为 '姓名'、 '公司'</span>)  <input type="file" name="taxFileList" multiple><br><br>
-    文件名: <input type="text" name="fileName"><br><br>
     <input type="submit" value="提交">
 </form>
+
+<h3 style="color:red">合并键的意思是, 以什么为标准合并.
+    <br> 例如, 以 '姓名' 为标准合并所有文件, 则在 '合并键' 输入框中输入 '姓名', 且所有文件的表头都必须要有一个 '姓名' 的表头.
+    <br> 除 '合并键' 之外的表头, 建议不要重复.
+</h3>
 
 
 </body>
