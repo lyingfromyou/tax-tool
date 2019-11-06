@@ -41,8 +41,8 @@ public class MergeFileController {
         long start = System.currentTimeMillis();
         //获取上传的文件数组
         List<MultipartFile> fileList = ((MultipartHttpServletRequest) request).getFiles("fileList");
-        if (CollUtil.isEmpty(fileList)) {
-            return "文件列表不能为空";
+        if (CollUtil.isEmpty(fileList) && fileList.size() > 1) {
+            return "文件列表不能为空且必须要两个文件及以上";
         }
 
         List<File> localFileList = new ArrayList<>();
@@ -69,7 +69,9 @@ public class MergeFileController {
                 System.currentTimeMillis() - start);
         System.err.println(content);
         new Thread(() -> {
-            mailUtil.sendMail(email, "合并文件结果", content, FileUtil.file(savePath));
+            File mergeFile = FileUtil.file(savePath);
+            mailUtil.sendMail(email, "合并文件结果", content, mergeFile);
+            FileUtil.del(mergeFile.getAbsolutePath());
         }).start();
         return "合并完成, 请注意查收";
     }
