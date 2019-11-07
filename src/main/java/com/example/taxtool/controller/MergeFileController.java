@@ -37,7 +37,7 @@ public class MergeFileController {
 
     @PostMapping(value = "/mergeFile", produces = "application/json; charset=utf-8")
     public String mergeExcel(HttpServletRequest request, @RequestParam String fileName,
-                             @RequestParam String email, @RequestParam String mergeKey) {
+                             @RequestParam String email, @RequestParam String mergeKey, @RequestParam String rowKey) {
         long start = System.currentTimeMillis();
         //获取上传的文件数组
         List<MultipartFile> fileList = ((MultipartHttpServletRequest) request).getFiles("fileList");
@@ -57,21 +57,51 @@ public class MergeFileController {
             }
         }
 
+        // 合并成功数据
+        List<Map<String, String>> mergeDataList = new ArrayList<>();
+        // 未合并数据
+        List<Map<String, String>> unMergeDataList = new ArrayList<>();
+
         Set<String> titles = new HashSet<>();
         Map<String, Map<String, String>> data = mergeFile(titles, localFileList, mergeKey);
-        ExcelWriter writer = ExcelUtil.getWriter(true);
         List<Map<String, String>> dataList = new ArrayList<>(data.values());
 
         for (Map<String, String> row : dataList) {
             Collection<String> coll = CollUtil.disjunction(row.keySet(), titles);
             if (CollUtil.isNotEmpty(coll)) {
                 coll.stream().forEach(tl -> row.put(tl, StrUtil.EMPTY));
-
+            }
+            String column = row.get(rowKey);
+            if (StrUtil.isNotBlank(column) && column.contains(StrUtil.COMMA)) {
+                String[] columnArr = column.split(StrUtil.COMMA);
+                for (String columnStr : columnArr) {
+                    Map<String, String> splitMap = buildSortMap(mergeKey);
+                    splitMap.putAll(row);
+                    splitMap.put(rowKey, columnStr);
+                    Collection<String> values = splitMap.values();
+                    if (values.contains(null) || values.contains(StrUtil.EMPTY)) {
+                        unMergeDataList.add(splitMap);
+                    } else {
+                        mergeDataList.add(splitMap);
+                    }
+                }
+            } else {
+                Collection<String> values = row.values();
+                if (values.contains(null) || values.contains(StrUtil.EMPTY)) {
+                    unMergeDataList.add(row);
+                } else {
+                    mergeDataList.add(row);
+                }
             }
         }
 
         String savePath = CommonConstants.MERGE_FILE_PATH + fileName;
-        writer.write(dataList);
+        ExcelWriter writer = new ExcelWriter(true, "合并信息");
+        writer.write(mergeDataList);
+
+        writer.setSheet("未合并信息");
+        writer.write(unMergeDataList);
+
         writer.flush(FileUtil.newFile(savePath));
         writer.close();
         localFileList.stream().forEach(file -> FileUtil.del(file.getAbsolutePath()));
@@ -293,7 +323,7 @@ public class MergeFileController {
                         if (data.containsKey(entryKey) && !key.equals(entryKey)) {
                             String oldVal = data.get(entryKey);
                             if (StrUtil.isNotBlank(oldVal)) {
-                                entryVal = String.join(" ,", oldVal, entryVal);
+                                entryVal = String.join(",", oldVal, entryVal);
                             }
                         }
                         data.put(entryKey, entryVal);
