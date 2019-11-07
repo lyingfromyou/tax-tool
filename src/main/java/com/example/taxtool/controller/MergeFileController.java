@@ -56,15 +56,25 @@ public class MergeFileController {
                 e.printStackTrace();
             }
         }
-        Map<String, Map<String, String>> data = mergeFile(localFileList, mergeKey);
+
+        Set<String> titles = new HashSet<>();
+        Map<String, Map<String, String>> data = mergeFile(titles, localFileList, mergeKey);
         ExcelWriter writer = ExcelUtil.getWriter(true);
-        writer.write(data.values());
+        List<Map<String, String>> dataList = new ArrayList<>(data.values());
+
+        for (Map<String, String> row : dataList) {
+            Collection<String> coll = CollUtil.disjunction(row.keySet(), titles);
+            if (CollUtil.isNotEmpty(coll)) {
+                coll.stream().forEach(tl -> row.put(tl, StrUtil.EMPTY));
+
+            }
+        }
 
         String savePath = CommonConstants.MERGE_FILE_PATH + fileName;
+        writer.write(dataList);
         writer.flush(FileUtil.newFile(savePath));
         writer.close();
         localFileList.stream().forEach(file -> FileUtil.del(file.getAbsolutePath()));
-
         String content = String.format("合并 %s 个文件, 一共用时: %s 毫秒. ", fileList.size(),
                 System.currentTimeMillis() - start);
         System.err.println(content);
@@ -260,19 +270,20 @@ public class MergeFileController {
         }
     }
 
-    public static Map<String, Map<String, String>> mergeFile(List<File> fileList, String key) {
+    public static Map<String, Map<String, String>> mergeFile(Set<String> titles, List<File> fileList, String key) {
         Map<String, Map<String, String>> allData = new HashMap<>();
         for (File file : fileList) {
             ExcelReader reader = ExcelUtil.getReader(file);
             List<Map<String, Object>> list = reader.readAll();
             for (Map<String, Object> map : list) {
+                titles.addAll(map.keySet());
                 if (map.containsKey(key)) {
                     String keyVal = map.get(key).toString();
                     Map<String, String> data;
                     if (allData.containsKey(keyVal)) {
                         data = allData.get(keyVal);
                     } else {
-                        data = new HashMap<>();
+                        data = buildSortMap(key);
                         allData.put(keyVal, data);
                     }
 
@@ -291,6 +302,25 @@ public class MergeFileController {
             }
         }
         return allData;
+    }
+
+    public static Map<String, String> buildSortMap(String sortKey) {
+        Map<String, String> mapVK = new TreeMap<>(
+                (Comparator<Object>) (obj1, obj2) -> {
+                    String v1 = (String) obj1;
+                    String v2 = (String) obj2;
+                    if (v1.equals(v2)) {
+                        return v1.compareTo(v2);
+                    }
+                    if (sortKey.equals(v1)) {
+                        return -1;
+                    }
+                    if (sortKey.equals(v2)) {
+                        return 1;
+                    }
+                    return v1.compareTo(v2);
+                });
+        return mapVK;
     }
 
 
