@@ -41,6 +41,16 @@ public class MergeFileController {
         long start = System.currentTimeMillis();
         //获取上传的文件数组
         List<MultipartFile> fileList = ((MultipartHttpServletRequest) request).getFiles("fileList");
+        List<MultipartFile> otherFileList = ((MultipartHttpServletRequest) request).getFiles("otherFileList");
+
+        if (CollUtil.isEmpty(fileList)) {
+            fileList = new ArrayList<>();
+        }
+
+        if (CollUtil.isNotEmpty(otherFileList)) {
+            fileList.addAll(otherFileList);
+        }
+
         if (CollUtil.isEmpty(fileList) && fileList.size() > 1) {
             return "文件列表不能为空且必须要两个文件及以上";
         }
