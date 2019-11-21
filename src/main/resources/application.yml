@@ -7,6 +7,7 @@ spring:
     host: 127.0.0.1
     # Redis服务器连接端口
     port: 6379
+#    password: huaqiutongAds
     password: nieqin
 
   mail:

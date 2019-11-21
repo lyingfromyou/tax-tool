@@ -2,7 +2,6 @@ package com.example.taxtool.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
@@ -52,13 +51,15 @@ public class SendMailController {
     private String secret;
 
     @PostMapping(value = "/send", produces = "application/json; charset=utf-8")
-    public String sendMail(@RequestParam(value = "files", required = false) MultipartFile[] files,
+    public String sendMail(@RequestParam("file") MultipartFile file,
                            @RequestParam(required = false) String name,
                            @RequestParam(required = false) String title,
                            @RequestParam(required = false) String content) throws Exception {
-        if (ArrayUtil.isEmpty(files)) {
+
+        if (null == file || file.isEmpty()) {
             return "没有文件";
         }
+
 
         if (StrUtil.isBlank(title)) {
             return "邮件主题不能为空";
@@ -69,21 +70,19 @@ public class SendMailController {
         }
 
         Set<SendMailInfo> sendMailInfos = new HashSet<>();
-        for (MultipartFile file : files) {
-            try {
-                String fileName = file.getOriginalFilename();
-                File localFile = FileUtil.writeFromStream(file.getInputStream(), CommonConstants.SEND_MAIL_FILE_PATH + fileName);
-                ExcelReader reader = ExcelUtil.getReader(localFile);
-                List<Map<String, Object>> infos = reader.readAll();
-                for (Map<String, Object> row : infos) {
-                    String str = StrUtil.format(content, row);
-                    String mail = row.get("邮箱").toString();
-                    sendMailInfos.add(new SendMailInfo(str, mail));
-                }
-                FileUtil.del(localFile.getAbsolutePath());
-            } catch (IOException e) {
-                e.printStackTrace();
+        try {
+            String fileName = file.getOriginalFilename();
+            File localFile = FileUtil.writeFromStream(file.getInputStream(), CommonConstants.SEND_MAIL_FILE_PATH + fileName);
+            ExcelReader reader = ExcelUtil.getReader(localFile);
+            List<Map<String, Object>> infos = reader.readAll();
+            for (Map<String, Object> row : infos) {
+                String str = StrUtil.format(content, row);
+                String mail = row.get("邮箱").toString();
+                sendMailInfos.add(new SendMailInfo(str, mail));
             }
+            FileUtil.del(localFile.getAbsolutePath());
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return doSend(title, name, sendMailInfos);
     }
