@@ -51,5 +51,10 @@ public interface CommonConstants {
      */
     String MERGE_FILE_PATH = "/opt/files/merge_file_path/";
 
+    /**
+     * 限制ip
+     */
+    String LIMIT_IP = "LIMIT_IP";
+
 
 }
