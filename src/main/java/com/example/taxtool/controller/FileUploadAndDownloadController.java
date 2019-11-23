@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.List;
@@ -27,7 +28,7 @@ public class FileUploadAndDownloadController {
     private StringRedisTemplate stringRedisTemplate;
 
     @PostMapping(value = "/file/upload", produces = "application/json; charset=utf-8")
-    public String fileUpload(@RequestParam("file") MultipartFile file) throws IOException {
+    public String fileUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         if (file.isEmpty()) {
             return "没有文件";
         }
@@ -45,7 +46,9 @@ public class FileUploadAndDownloadController {
         String fileName = file.getOriginalFilename();
         System.err.println(fileName);
         FileUtil.writeFromStream(file.getInputStream(), CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName);
-        return "129.28.131.210/file/download?fileId=" + id;
+
+        String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
+        return rootUrl + "/file/download?fileId=" + id;
     }
 
     @GetMapping(value = "/file/download", produces = "application/json; charset=utf-8")

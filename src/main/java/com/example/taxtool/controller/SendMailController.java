@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
@@ -91,7 +92,7 @@ public class SendMailController {
     private StringRedisTemplate stringRedisTemplate;
 
     @PostMapping(value = "/verification", produces = "application/json; charset=utf-8")
-    public String verification(@RequestParam("file") MultipartFile file) throws IOException {
+    public String verification(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
         if (null != file && !file.isEmpty()) {
             String fileName = file.getOriginalFilename();
             System.err.println("上传文件名: " + fileName);
@@ -132,7 +133,9 @@ public class SendMailController {
                     writer.close();
 
                 }).start();
-                return "129.28.131.210/file/download?fileId=" + id + StrUtil.CRLF + "验证时间较长, 请过3-5分钟后再进行下载";
+
+                String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
+                return rootUrl + "/file/download?fileId=" + id + StrUtil.CRLF + "验证时间较长, 请过3-5分钟后再进行下载";
             }
         }
         return "没有数据";
