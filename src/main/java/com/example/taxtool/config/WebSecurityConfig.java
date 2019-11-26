@@ -30,6 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .anyRequest().authenticated()//其他路径必须验证身份
                 .and()
                 .formLogin()
+                .loginPage("/login")
                 .successForwardUrl("/homePage")
                 .defaultSuccessUrl("/homePage", true)
                 .permitAll()

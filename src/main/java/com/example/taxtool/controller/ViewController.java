@@ -16,6 +16,12 @@ import java.util.Map;
 @Controller
 public class ViewController {
 
+
+    @GetMapping("/login")
+    public String loginPage(){
+        return "loginPage";
+    }
+
     @GetMapping("/sendMailPage")
     public String sendMailPage(){
         return "sendMailPage";
