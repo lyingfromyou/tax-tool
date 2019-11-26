@@ -22,6 +22,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(
                         "/",
                         "/login",
+                        "/*.ico",
                         "/static/**",
                         "/css/**",
                         "/fileUploadAndDownloadPage",
