@@ -24,6 +24,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/login",
                         "/*.ico",
                         "/static/**",
+                        "/img/**",
                         "/css/**",
                         "/fileUploadAndDownloadPage",
                         "/file/**"
