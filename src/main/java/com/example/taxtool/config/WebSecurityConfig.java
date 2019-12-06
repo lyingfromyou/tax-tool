@@ -2,6 +2,7 @@ package com.example.taxtool.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,6 +20,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.authorizeRequests()//允许基于HttpServletRequest使用限制访问
+                .antMatchers(HttpMethod.POST, "/file/**").permitAll()
                 .antMatchers(
                         "/",
                         "/login",
@@ -29,6 +31,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/fileUploadAndDownloadPage",
                         "/file/**"
                 ).permitAll()//不需要身份认证
+
                 .anyRequest().authenticated()//其他路径必须验证身份
                 .and()
                 .formLogin()
@@ -37,7 +40,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .defaultSuccessUrl("/homePage", true)
                 .permitAll()
                 .and()
+                .csrf().disable()
                 .logout().permitAll().deleteCookies("JSESSIONID");//退出删除cookie
+
         super.configure(http);
         http.authorizeRequests().antMatchers("*").permitAll();
 //        http.authorizeRequests().anyRequest().permitAll().and()

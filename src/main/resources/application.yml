@@ -27,11 +27,11 @@ spring:
       enabled: false
   servlet:
     multipart:
-      max-file-size: 20MB
-      max-request-size: 30MB
+      max-file-size: 100MB
+      max-request-size: 110MB
 
 minio:
-  url: http://129.28.131.210:9000
+  url: http://minio.sanpang.xyz:9000
   access-key: nzq
   secret-key: 12345678
 
