@@ -27,8 +27,8 @@ spring:
       enabled: false
   servlet:
     multipart:
-      max-file-size: 10
-      max-request-size: 20
+      max-file-size: 20MB
+      max-request-size: 30MB
 
 minio:
   url: http://129.28.131.210:9000
