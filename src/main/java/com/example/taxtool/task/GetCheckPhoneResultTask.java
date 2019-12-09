@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -53,16 +54,15 @@ public class GetCheckPhoneResultTask implements Runnable {
     public void run() {
         while (true) {
             try {
-//                TimeUnit.SECONDS.sleep(15);
+                TimeUnit.SECONDS.sleep(10);
                 String resultStr = HttpUtil.post(CommonConstants.CHECK_PHONE_GET_RESULT_URL, CheckPhoneController.getResultRequestMap(sendId));
                 if (StrUtil.isNotBlank(resultStr)) {
                     CheckPhoneResult checkPhoneResult = GsonUtil.fromJson(resultStr, CheckPhoneResult.class);
-                    if (null != checkPhoneResult && checkPhoneResult.getRES().equals("100")) {
+                    if (null != checkPhoneResult && checkPhoneResult.getRES().equals("100")
+                            && checkPhoneResult.getDATA().getStatus().equals("2")) {
                         HttpResponse response = com.example.taxtool.utils.HttpUtil
                                 .download(CommonConstants.CHECK_PHONE_DOWNLOAD_URL, getRequestMap());
                         InputStream inputStream = response.getEntity().getContent();
-
-
 
                         File zipFile = FileUtil.writeFromStream(inputStream, ZIP_FILE_PATH + this.sendId + ".zip");
                         File unzipDir = ZipUtil.unzip(zipFile, Charset.forName("GBK"));
@@ -85,8 +85,8 @@ public class GetCheckPhoneResultTask implements Runnable {
                     }
                 }
             } catch (
-//                    InterruptedException |
-                            IOException e) {
+                    InterruptedException |
+                    IOException e) {
                 e.printStackTrace();
             }
         }
