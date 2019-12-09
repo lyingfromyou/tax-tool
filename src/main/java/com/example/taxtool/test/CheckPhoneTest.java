@@ -107,7 +107,7 @@ public class CheckPhoneTest {
     @Test
     public void test5() throws InterruptedException {
 
-        Thread t = new Thread(new GetCheckPhoneResultTask("43151", "183023840@qq.com", null, null));
+        Thread t = new Thread(new GetCheckPhoneResultTask("43178", "183023840@qq.com", null, null));
 
         t.start();
         t.join();
