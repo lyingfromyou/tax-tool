@@ -13,6 +13,7 @@ public class WebMvcConfig extends WebMvcConfigurationSupport {
         registry.addRedirectViewController("/", "/homePage");
         registry.addViewController("/homePage").setViewName("homePage");
         registry.addViewController("/fileList").setViewName("fileListPage");
+
     }
 
     @Override

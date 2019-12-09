@@ -4,7 +4,9 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
@@ -24,6 +26,17 @@ import java.util.Set;
  * @Date 2019/10/24
  */
 public class HttpUtil {
+
+
+    public static HttpResponse download(String url, Map<String, String> paramMap) throws IOException {
+        HttpClient httpClient = new DefaultHttpClient();
+        HttpPost post = new HttpPost(url);
+        List<NameValuePair> formParams = setHttpParams(paramMap);
+        //url格式编码
+        UrlEncodedFormEntity uefEntity = new UrlEncodedFormEntity(formParams, "UTF-8");
+        post.setEntity(uefEntity);
+        return httpClient.execute(post);
+    }
 
 
     public static String get(String url, Map<String, String> paramMap) throws IOException {
@@ -59,6 +72,7 @@ public class HttpUtil {
 
     /**
      * 设置请求参数
+     *
      * @param
      * @return
      */

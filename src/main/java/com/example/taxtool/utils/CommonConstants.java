@@ -56,5 +56,24 @@ public interface CommonConstants {
      */
     String LIMIT_IP = "LIMIT_IP";
 
+    /**
+     * 上传空号检测的url
+     */
+    String CHECK_PHONE_UPLOAD_URL = "https://xcjk.mobwin.me/api/Upload.ashx";
+
+    /**
+     * 获取空号检测结果的url
+     */
+    String CHECK_PHONE_GET_RESULT_URL = "https://xcjk.mobwin.me/api/Query.ashx";
+
+    /**
+     * 下载url
+     */
+    String CHECK_PHONE_DOWNLOAD_URL = "https://xcjk.mobwin.me/api/Download.ashx";
+
+    /**
+     * 空号检测上传文件路径
+     */
+    String CHECK_PHONE_UPLOAD_FILE_PATH = "/opt/files/check_phone_upload_file_path/";
 
 }

@@ -21,6 +21,11 @@ public class ViewController {
         return "loginPage";
     }
 
+    @GetMapping("/checkPhonePage")
+    public String checkPhonePage(){
+        return "checkPhonePage";
+    }
+
     @GetMapping("/sendMailPage")
     public String sendMailPage(){
         return "sendMailPage";

@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>检测空号</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <!--    <link rel="stylesheet" type="text/css" href="../static/css/common.css">-->
+    <link rel="stylesheet" type="text/css" th:href="@{css/common.css}">
+</head>
+<body>
+
+<div>
+    <div>
+        <div>
+            <fieldset>
+                <legend>检测空号</legend>
+                <form method="post" th:action="@{/checkPhone}" enctype="multipart/form-data">
+                    接收检测结果邮箱: <input type="text" name="email"></input><br><br>
+                    <br><br>
+                    <input type="file" name="file">
+                    <span class="note">数据需大于500, 表头: 客户姓名、手机号码、备注</span>
+                    <br><br>
+                    <input type="submit" value="提交">
+                </form>
+            </fieldset>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
