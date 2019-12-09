@@ -5,10 +5,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
-import cn.hutool.poi.excel.ExcelWriter;
-import com.example.taxtool.entity.MailInfo;
 import com.example.taxtool.entity.SendMailInfo;
-import com.example.taxtool.utils.CheckMailUtil;
 import com.example.taxtool.utils.CommonConstants;
 import com.example.taxtool.utils.GsonUtil;
 import com.mailjet.client.ClientOptions;
@@ -34,7 +31,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  * @author by Lying
@@ -93,52 +89,54 @@ public class SendMailController {
 
     @PostMapping(value = "/verification", produces = "application/json; charset=utf-8")
     public String verification(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
-        if (null != file && !file.isEmpty()) {
-            String fileName = file.getOriginalFilename();
-            System.err.println("上传文件名: " + fileName);
-            File localFile = FileUtil.writeFromStream(file.getInputStream(),
-                    CommonConstants.VERIFICATION_MAIL_FILE_PATH + fileName);
+        return "不验证， 自己去验证";
 
-            ExcelReader reader = ExcelUtil.getReader(localFile);
-            reader.addHeaderAlias("邮箱", "mail");
-            List<MailInfo> mailInfos = reader.readAll(MailInfo.class);
-            if (CollUtil.isNotEmpty(mailInfos)) {
-                if (mailInfos.size() > 200) {
-                    FileUtil.del(localFile.getAbsolutePath());
-                    return "邮箱不能大于200个";
-                }
-
-                String beforeId = stringRedisTemplate.opsForValue().get(CommonConstants.UPLOAD_FILE_ID_KEY);
-                String id;
-                if (StrUtil.isBlank(beforeId)) {
-                    id = "1";
-                } else {
-                    id = String.valueOf(Long.valueOf(beforeId) + 1);
-                }
-                stringRedisTemplate.opsForValue().set(CommonConstants.UPLOAD_FILE_ID_KEY, id);
-
-                String resultFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "check_result.xlsx";
-                new Thread(() -> {
-                    Set<String> mails = mailInfos.stream().map(MailInfo::getMail).collect(Collectors.toSet());
-                    List<MailInfo> checkResult = CheckMailUtil.batchCheck(mails);
-
-                    ExcelWriter writer = ExcelUtil.getWriter(CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH
-                            + resultFileName);
-                    writer.addHeaderAlias("mail", "邮箱");
-                    writer.addHeaderAlias("isExist", "是否存在");
-
-                    // 一次性写出内容
-                    writer.write(checkResult, true);
-                    // 关闭writer，释放内存
-                    writer.close();
-
-                }).start();
-
-                String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
-                return rootUrl + "/file/download?fileId=" + id + StrUtil.CRLF + "验证时间较长, 请过3-5分钟后再进行下载";
-            }
-        }
-        return "没有数据";
+//        if (null != file && !file.isEmpty()) {
+//            String fileName = file.getOriginalFilename();
+//            System.err.println("上传文件名: " + fileName);
+//            File localFile = FileUtil.writeFromStream(file.getInputStream(),
+//                    CommonConstants.VERIFICATION_MAIL_FILE_PATH + fileName);
+//
+//            ExcelReader reader = ExcelUtil.getReader(localFile);
+//            reader.addHeaderAlias("邮箱", "mail");
+//            List<MailInfo> mailInfos = reader.readAll(MailInfo.class);
+//            if (CollUtil.isNotEmpty(mailInfos)) {
+//                if (mailInfos.size() > 200) {
+//                    FileUtil.del(localFile.getAbsolutePath());
+//                    return "邮箱不能大于200个";
+//                }
+//
+//                String beforeId = stringRedisTemplate.opsForValue().get(CommonConstants.UPLOAD_FILE_ID_KEY);
+//                String id;
+//                if (StrUtil.isBlank(beforeId)) {
+//                    id = "1";
+//                } else {
+//                    id = String.valueOf(Long.valueOf(beforeId) + 1);
+//                }
+//                stringRedisTemplate.opsForValue().set(CommonConstants.UPLOAD_FILE_ID_KEY, id);
+//
+//                String resultFileName = fileName.substring(0, fileName.lastIndexOf(".")) + "check_result.xlsx";
+//                new Thread(() -> {
+//                    Set<String> mails = mailInfos.stream().map(MailInfo::getMail).collect(Collectors.toSet());
+//                    List<MailInfo> checkResult = CheckMailUtil.batchCheck(mails);
+//
+//                    ExcelWriter writer = ExcelUtil.getWriter(CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH
+//                            + resultFileName);
+//                    writer.addHeaderAlias("mail", "邮箱");
+//                    writer.addHeaderAlias("isExist", "是否存在");
+//
+//                    // 一次性写出内容
+//                    writer.write(checkResult, true);
+//                    // 关闭writer，释放内存
+//                    writer.close();
+//
+//                }).start();
+//
+//                String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
+//                return rootUrl + "/file/download?fileId=" + id + StrUtil.CRLF + "验证时间较长, 请过3-5分钟后再进行下载";
+//            }
+//        }
+//        return "没有数据";
     }
 
 

@@ -2,7 +2,6 @@ server:
   port: 8899
 
 spring:
-
   redis:
     # Redis服务器地址
     host: 127.0.0.1
@@ -31,14 +30,14 @@ spring:
       max-request-size: 110MB
 
 minio:
-  url: http://minio.sanpang.xyz:9000
+  url: http://minio.sanpang.xyz
   access-key: nzq
   secret-key: 12345678
 
 mailjet:
   key: 421f456e32ea5567fb56be9fb5847d1a
   secret: dde6f6ded459f2ce4f1469e2a428acb5
-  from: 121453698@qq.com
+  from: XinYuGuanLi@sanpang.xyz
 
 
 logging:
