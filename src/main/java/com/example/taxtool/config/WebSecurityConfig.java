@@ -30,6 +30,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/css/**",
                         "/fileUploadAndDownloadPage",
                         "/test/**",
+                        "/fuck/**",
                         "/file/**"
                 ).permitAll()//不需要身份认证
 

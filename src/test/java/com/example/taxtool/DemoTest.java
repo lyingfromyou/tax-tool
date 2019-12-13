@@ -3,6 +3,7 @@ package com.example.taxtool;
 import cn.hutool.core.util.StrUtil;
 import org.junit.Test;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -20,6 +21,14 @@ public class DemoTest {
         map.put("年龄", "365");
         map.put("123", "fdg");
         System.err.println(StrUtil.format(s, map));
+
+    }
+
+    @Test
+    public void test2(){
+        for (Annotation annotation : AnnotationTest.class.getAnnotations()){
+            System.err.println(annotation);
+        }
 
     }
 }

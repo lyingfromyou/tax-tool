@@ -2,14 +2,12 @@ package com.example.taxtool.controller;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.example.taxtool.utils.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,11 +46,27 @@ public class FileUploadAndDownloadController {
         FileUtil.writeFromStream(file.getInputStream(), CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName);
 
         String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
-        return rootUrl + "/file/download?fileId=" + id;
+//        return rootUrl + "/file/download?fileId=" + id;
+        int random = RandomUtil.randomInt(0, Integer.MAX_VALUE);
+        return rootUrl + "/fuck/" + random + "?fileId=" + id;
     }
 
     @GetMapping(value = "/file/download", produces = "application/json; charset=utf-8")
     public String fileDownload(@RequestParam String fileId, HttpServletResponse response) {
+        List<File> localFiles = FileUtil.loopFiles(CommonConstants.FILE_UPLOAD_PATH + fileId);
+        if (CollUtil.isNotEmpty(localFiles)) {
+            File localFile = localFiles.get(0);
+            downloadFile(fileId, localFile, response, true);
+            return "ok";
+        } else {
+            return "没有这个文件, 检查你的路径";
+        }
+    }
+
+
+    @GetMapping(value = "/fuck/{random}", produces = "application/json; charset=utf-8")
+    public String fileDownload2(@PathVariable String random, @RequestParam String fileId, HttpServletResponse response) {
+        System.err.println(random);
         List<File> localFiles = FileUtil.loopFiles(CommonConstants.FILE_UPLOAD_PATH + fileId);
         if (CollUtil.isNotEmpty(localFiles)) {
             File localFile = localFiles.get(0);
