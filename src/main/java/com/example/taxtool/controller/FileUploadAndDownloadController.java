@@ -47,7 +47,7 @@ public class FileUploadAndDownloadController {
         FileUtil.writeFromStream(file.getInputStream(), CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName);
 
         String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
-        return  rootUrl + DOWNLOAD_PREFIX + "upload_file/" + id + StrUtil.SLASH + fileName;
+        return  rootUrl + DOWNLOAD_PREFIX + "/upload_file/" + id + StrUtil.SLASH + fileName;
 //        return rootUrl + "/file/download?fileId=" + id;
     }
 
