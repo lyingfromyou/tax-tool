@@ -37,7 +37,8 @@ public class GetUserInfoTask implements Callable<List<OutputUserInfo>> {
     @Override
     public List<OutputUserInfo> call() {
         List<OutputUserInfo> userInfos = new ArrayList<>();
-        File log = FileUtil.mkdir(CommonConstants.TAX_HANDLE_LOG_PATH + fileName + StrUtil.SLASH + "log_task_" + this.task);
+        File log = FileUtil.mkdir(CommonConstants.BASE_PATH
+                + CommonConstants.TAX_HANDLE_LOG_PATH + fileName + StrUtil.SLASH + "log_task_" + this.task);
         String msg = "";
         for (int i = 0; i < this.inputUserInfos.size(); i++) {
             InputUserInfo inputUserInfo = inputUserInfos.get(i);

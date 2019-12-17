@@ -44,7 +44,7 @@ public class ViewController {
     @GetMapping("/fileListPage")
     public String fileListPage(Map<String, Object> paramMap) {
         try {
-            List<String> fileList = FileUtil.listFileNames(CommonConstants.COMPANY_INFO_FILE_PATH);
+            List<String> fileList = FileUtil.listFileNames(CommonConstants.BASE_PATH + CommonConstants.COMPANY_INFO_FILE_PATH);
             paramMap.put("fileList", fileList);
         } catch (IORuntimeException e) {
             System.err.println(e.getMessage());

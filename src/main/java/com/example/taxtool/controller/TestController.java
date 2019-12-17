@@ -36,10 +36,25 @@ public class TestController {
     @Autowired
     private ThreadPoolExecutor executor;
 
+
+
+    @PostMapping("/jquery")
+    public String jquery(@RequestParam("file") MultipartFile file, @RequestParam Map<String, Object> map) throws IOException {
+        System.err.println( file.getOriginalFilename());
+
+
+        FileUtil.writeFromStream(file.getInputStream(), "D:\\" + file.getOriginalFilename());
+
+//        System.err.println(file.getName());
+        return "ok";
+    }
+
+
     @PostMapping(value = "/checkPhone", produces = "application/json;charset=utf-8")
     public String checkPhone(@RequestParam("file") MultipartFile file, @RequestParam String email) throws IOException {
         File localFile = FileUtil.writeFromStream(
                 file.getInputStream(),
+                CommonConstants.BASE_PATH +
                 CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH + file.getOriginalFilename());
 
         ExcelReader excelReader = ExcelUtil.getReader(localFile);
@@ -73,18 +88,17 @@ public class TestController {
                 String sendId = "43175";
 //                String sendId = "43178";
                 executor.execute(new GetCheckPhoneResultTask(sendId, email, totalMap, mailUtil));
-                delFiles(CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
+                delFiles(CommonConstants.BASE_PATH + CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
                 return "上传成功, sendId: " + sendId;
             } else {
-                delFiles(CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
+                delFiles(CommonConstants.BASE_PATH + CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
                 return "处理失败";
             }
         } else {
-            delFiles(CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
+            delFiles(CommonConstants.BASE_PATH + CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
             return "数据必须大于500";
         }
     }
-
 
     private void delFiles(String path) {
         FileUtil.del(path);

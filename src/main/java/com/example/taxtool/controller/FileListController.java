@@ -28,9 +28,10 @@ public class FileListController {
     @GetMapping(value = "/downloadCompanyInfoFile", produces = "application/json;charset=utf-8")
     public String downloadFile(@RequestParam String fileName, HttpServletResponse response) {
         try {
-            List<String> fileList = FileUtil.listFileNames(CommonConstants.COMPANY_INFO_FILE_PATH);
+            String filePath = CommonConstants.BASE_PATH + CommonConstants.COMPANY_INFO_FILE_PATH;
+            List<String> fileList = FileUtil.listFileNames(filePath);
             if (fileList.contains(fileName)) {
-                ExcelReader reader = ExcelUtil.getReader(CommonConstants.COMPANY_INFO_FILE_PATH + fileName);
+                ExcelReader reader = ExcelUtil.getReader(filePath+ fileName);
                 ExcelWriter writer = reader.getWriter();
                 //response为HttpServletResponse对象
                 response.setContentType("application/vnd.ms-excel;charset=utf-8");

@@ -60,6 +60,7 @@ public class MergeFileController {
             try {
                 File localFile = FileUtil.writeFromStream(
                         multipartFile.getInputStream(),
+                        CommonConstants.BASE_PATH +
                         CommonConstants.MERGE_FILE_UPLOAD_PATH + multipartFile.getOriginalFilename());
                 localFileList.add(localFile);
             } catch (IOException e) {
@@ -105,7 +106,7 @@ public class MergeFileController {
             }
         }
 
-        String savePath = CommonConstants.MERGE_FILE_PATH + fileName;
+        String savePath = CommonConstants.BASE_PATH + CommonConstants.MERGE_FILE_PATH + fileName;
         ExcelWriter writer = new ExcelWriter(true, "合并信息");
         writer.write(mergeDataList);
 

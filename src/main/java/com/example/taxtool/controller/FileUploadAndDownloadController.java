@@ -3,6 +3,8 @@ package com.example.taxtool.controller;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import com.example.taxtool.entity.UploadSession;
+import com.example.taxtool.task.FileSendToEmailTask;
 import com.example.taxtool.utils.CommonConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -12,7 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * @author by Lying
@@ -24,7 +30,46 @@ public class FileUploadAndDownloadController {
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
 
+    @Autowired
+    private ThreadPoolExecutor executor;
+
     private static final String DOWNLOAD_PREFIX = "/files";
+    private static String filePath = CommonConstants.BASE_PATH + CommonConstants.FILE_UPLOAD_PATH;
+
+    public static final Map<UploadSession, StringBuffer> contentMap = Collections.synchronizedMap(new HashMap<>());
+
+    @GetMapping(value = "/file/upload", produces = "application/json; charset=utf-8")
+    public String textUpload(@RequestHeader String uuid,
+                             @RequestHeader(required = false) String endSignal,
+                             @RequestParam String email, @RequestParam String text) {
+        text = StrUtil.trim(text);
+        if (StrUtil.isBlank(text) && StrUtil.isBlank(endSignal)) {
+            return "OK";
+        }
+
+        UploadSession session = UploadSession.builder().uuid(uuid).email(email).build();
+        StringBuffer buffer = contentMap.get(session);
+        if (null == buffer) {
+            buffer = new StringBuffer();
+        }
+
+        appendContent(text, buffer);
+
+        if (StrUtil.isNotBlank(endSignal)) {
+            buffer = contentMap.remove(session);
+            executor.execute(new FileSendToEmailTask(email, buffer));
+        } else {
+            contentMap.put(session, buffer);
+        }
+        return "OK";
+    }
+
+    private synchronized void appendContent(String text,  StringBuffer buffer) {
+        if (StrUtil.isNotBlank(text)) {
+            buffer.append(text);
+            buffer.append(StrUtil.CRLF);
+        }
+    }
 
     @PostMapping(value = "/file/upload", produces = "application/json; charset=utf-8")
     public String fileUpload(@RequestParam("file") MultipartFile file, HttpServletRequest request) throws IOException {
@@ -44,16 +89,17 @@ public class FileUploadAndDownloadController {
 
         String fileName = file.getOriginalFilename();
         System.err.println(fileName);
-        FileUtil.writeFromStream(file.getInputStream(), CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName);
+
+        FileUtil.writeFromStream(file.getInputStream(), filePath + id + StrUtil.SLASH + fileName);
 
         String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
-        return  rootUrl + DOWNLOAD_PREFIX + "/upload_file/" + id + StrUtil.SLASH + fileName;
+        return rootUrl + DOWNLOAD_PREFIX + "/upload_file/" + id + StrUtil.SLASH + fileName;
 //        return rootUrl + "/file/download?fileId=" + id;
     }
 
     @GetMapping(value = "/file/download", produces = "application/json; charset=utf-8")
     public String fileDownload(@RequestParam String fileId, HttpServletResponse response) {
-        List<File> localFiles = FileUtil.loopFiles(CommonConstants.FILE_UPLOAD_PATH + fileId);
+        List<File> localFiles = FileUtil.loopFiles(filePath + fileId);
         if (CollUtil.isNotEmpty(localFiles)) {
             File localFile = localFiles.get(0);
             downloadFile(fileId, localFile, response, true);
@@ -82,8 +128,7 @@ public class FileUploadAndDownloadController {
             }
             toClient.flush();
             if (isDelete) {
-
-                boolean delete = FileUtil.del(CommonConstants.FILE_UPLOAD_PATH + fileId);
+                boolean delete = FileUtil.del(filePath + fileId);
                 System.err.println(delete);
             }
         } catch (IOException ex) {

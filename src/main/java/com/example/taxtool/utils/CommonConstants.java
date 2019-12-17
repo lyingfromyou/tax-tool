@@ -9,18 +9,17 @@ public interface CommonConstants {
     /**
      * 基本路径
      */
-    String BASE_PATH = "/opt/docker/nginx/html/files/";
-
+    String BASE_PATH = "/opt/docker/nginx/html/files";
 
     /**
      * 获取公司信息的上传文件路径
      */
-    String COMPANY_INFO_FILE_PATH = BASE_PATH + "company_info/";
+    String COMPANY_INFO_FILE_PATH = "/company_info/";
 
     /**
      * 文件上传下载的上传路径
      */
-    String FILE_UPLOAD_PATH = BASE_PATH + "upload_file/";
+    String FILE_UPLOAD_PATH = "/upload_file/";
 
     /**
      * 上传文件的id标识
@@ -30,22 +29,22 @@ public interface CommonConstants {
     /**
      * 发送邮件的上传文件路径
      */
-    String SEND_MAIL_FILE_PATH = BASE_PATH + "send_mail_file_path/";
+    String SEND_MAIL_FILE_PATH = "/send_mail_file_path/";
 
     /**
      * 执行日志
      */
-    String TAX_HANDLE_LOG_PATH = BASE_PATH + "tax_handle_log/";
+    String TAX_HANDLE_LOG_PATH = "/tax_handle_log/";
 
     /**
      * 合并文件上传路径
      */
-    String MERGE_FILE_UPLOAD_PATH = BASE_PATH + "merge_file_upload_path/";
+    String MERGE_FILE_UPLOAD_PATH = "/merge_file_upload_path/";
 
     /**
      * 合并文件下载路径
      */
-    String MERGE_FILE_PATH = BASE_PATH + "merge_file_path/";
+    String MERGE_FILE_PATH = "/erge_file_path/";
 
     /**
      * 限制ip
@@ -70,6 +69,6 @@ public interface CommonConstants {
     /**
      * 空号检测上传文件路径
      */
-    String CHECK_PHONE_UPLOAD_FILE_PATH = BASE_PATH + "check_phone_upload_file_path/";
+    String CHECK_PHONE_UPLOAD_FILE_PATH =  "/check_phone_upload_file_path/";
 
 }

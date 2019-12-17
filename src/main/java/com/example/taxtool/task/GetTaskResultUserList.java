@@ -56,7 +56,7 @@ public class GetTaskResultUserList implements Runnable {
 //            this.threadPoolExecutor.shutdown();
 
             String saveFileName = this.fileName + StrUtil.DASHED + LocalDate.now() + ".xlsx";
-            String saveFilePath = CommonConstants.COMPANY_INFO_FILE_PATH + saveFileName;
+            String saveFilePath = CommonConstants.BASE_PATH + CommonConstants.COMPANY_INFO_FILE_PATH + saveFileName;
             ExcelWriter writer = ExcelUtil.getWriter(saveFilePath);
             writer.addHeaderAlias("xm", "姓名");
             writer.addHeaderAlias("sfz", "身份证");
@@ -67,7 +67,7 @@ public class GetTaskResultUserList implements Runnable {
             // 关闭writer，释放内存
             writer.close();
 
-            String logPath= CommonConstants.TAX_HANDLE_LOG_PATH + fileName + StrUtil.SLASH;
+            String logPath=  CommonConstants.BASE_PATH + CommonConstants.TAX_HANDLE_LOG_PATH + fileName + StrUtil.SLASH;
             FileUtil.copy(saveFilePath, logPath + saveFileName, true);
             List<File> logs = FileUtil.loopFiles(logPath);
             MailUtil mailUtil = SpringUtil.getBean(MailUtil.class);

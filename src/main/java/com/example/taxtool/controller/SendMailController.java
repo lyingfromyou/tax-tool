@@ -120,7 +120,7 @@ public class SendMailController {
 //                    Set<String> mails = mailInfos.stream().map(MailInfo::getMail).collect(Collectors.toSet());
 //                    List<MailInfo> checkResult = CheckMailUtil.batchCheck(mails);
 //
-//                    ExcelWriter writer = ExcelUtil.getWriter(CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH
+//                    ExcelWriter writer = ExcelUtil.getWriter(CommonConstants.BASE_PATH + CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH
 //                            + resultFileName);
 //                    writer.addHeaderAlias("mail", "邮箱");
 //                    writer.addHeaderAlias("isExist", "是否存在");

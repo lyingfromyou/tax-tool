@@ -41,7 +41,8 @@ public class CheckPhoneController {
     public String check(@RequestParam("file") MultipartFile file, @RequestParam String email) throws IOException {
         File localFile = FileUtil.writeFromStream(
                 file.getInputStream(),
-                CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH + file.getOriginalFilename());
+                CommonConstants.BASE_PATH +
+                        CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH + file.getOriginalFilename());
 
         ExcelReader excelReader = ExcelUtil.getReader(localFile);
         Map<String, String> headerAlias = new HashMap<>();
@@ -68,7 +69,8 @@ public class CheckPhoneController {
                     ));
 
             Set<String> phoneSet = totalMap.keySet();
-            String uploadTxtFilePath = CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH +
+            String uploadTxtFilePath = CommonConstants.BASE_PATH +
+                    CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH +
                     StrUtil.removeSuffix(file.getOriginalFilename(), ".xlsx") + ".txt";
             File txtFile = FileUtil.touch(uploadTxtFilePath);
             FileUtil.writeUtf8Lines(phoneSet, txtFile);
@@ -80,14 +82,14 @@ public class CheckPhoneController {
             if (null != result && result.getRES().equals("100")) {
                 String sendId = result.getDATA().getSendID();
                 executor.execute(new GetCheckPhoneResultTask(sendId, email, totalMap, mailUtil));
-                delFiles(CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
+                delFiles(CommonConstants.BASE_PATH + CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
                 return "上传成功, sendId: " + sendId;
             } else {
-                delFiles(CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
+                delFiles(CommonConstants.BASE_PATH + CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
                 return "处理失败";
             }
         } else {
-            delFiles(CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
+            delFiles(CommonConstants.BASE_PATH + CommonConstants.CHECK_PHONE_UPLOAD_FILE_PATH);
             return "数据必须大于500";
         }
     }

@@ -28,9 +28,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         "/static/**",
                         "/img/**",
                         "/css/**",
+                        "/js/**",
                         "/fileUploadAndDownloadPage",
                         "/test/**",
                         "/fuck/**",
+                        "/webjars/**",
                         "/file/**"
                 ).permitAll()//不需要身份认证
 

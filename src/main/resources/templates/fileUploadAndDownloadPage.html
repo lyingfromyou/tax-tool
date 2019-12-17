@@ -4,22 +4,128 @@
     <title>上传文件</title>
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <link rel="stylesheet" type="text/css" th:href="@{css/common.css}">
+    <script type="text/javascript" src="/webjars/jquery/3.1.0/jquery.min.js"></script>
+    <script type="text/javascript" th:src="@{/js/math.min.js}"></script>
 </head>
+<script>
+    function computeUpload1() {
+        var formData = new FormData();
+        formData.append('file', $('#file')[0].files[0]);
+
+        $.ajax({
+            type: "POST",
+            url: "/file/upload",
+            data: formData,
+            contentType: false,
+            processData: false,
+            dataType: "text",
+            success: function (data) {
+                alert(data)
+            },
+            error: function () {
+                alert('smx失败 ');
+            },
+        })
+    }
+
+
+    function computeUpload2() {
+        var inputContent = $("#content");
+        inputContent.attr("disabled", true);
+        var lines = inputContent.val().split("\n");
+        var uuid = guid();
+        var email = $("#email").val()
+
+        var resultCount = 0;
+        var asyncFlag;
+        lines.forEach(function (line, index) {
+            line = $.trim(line).replace(/\s+/gm, ",");
+            var headers = {"uuid": uuid};
+            if ((index + 1) === lines.length) {
+                headers.endSignal = "endSignal";
+            }
+            if (index === 0) {
+                asyncFlag = false;
+            } else {
+                asyncFlag = true;
+            }
+
+            $.ajax({
+                type: "GET",
+                url: "/file/upload?text=" + line + "&email=" + email,
+                headers: headers,
+                contentType: false,
+                processData: false,
+                dataType: "text",
+                async: asyncFlag,
+                success: function (data) {
+                    resultCount = resultCount + 1;
+                    var completionRate = math.divide(resultCount, lines.length).toFixed(2) * 100;
+                    $("#taskResult").html("上传已完成: " + completionRate + "%")
+                    console.log(data)
+                    if (resultCount === lines.length) {
+                        inputContent.attr("disabled", false);
+                    }
+                },
+                error: function () {
+                    alert('smx失败 ');
+                },
+            });
+        })
+
+    }
+
+    function S4() {
+        return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1);
+    }
+
+    function guid() {
+        return (S4() + S4() + "-" + S4() + "-" + S4() + "-" + S4() + "-" + S4() + S4() + S4());
+    }
+
+</script>
 <body>
+
 
 <div>
     <div>
         <div>
             <fieldset>
                 <legend>上传文件</legend>
-                <form method="post" th:action="@{/file/upload}" enctype="multipart/form-data">
-                    <input type="file" name="file">
-                    <span class="note">文件下载之后就会删除(文件最多保留一天, 过期删除不负责)</span>
-                    <br><br>
-                    <input type="submit" value="提交">
+                <input method="post" th:action="@{/file/upload}" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <span class="note">文件下载之后就会删除(文件最多保留一天, 过期删除不负责)</span>
+                <br><br>
+                <input type="submit" value="提交">
                 </form>
+            </fieldset>
+        </div>
+        <HR>
+        <br><br>
+        <div>
+            <fieldset>
+                <legend>电脑上传文件测试1</legend>
+                <input id="file" type="file" name="file">
+                <input type="submit" value="提交" onclick="computeUpload1()">
+            </fieldset>
+        </div>
+
+        <HR>
+        <br><br>
+        <div>
+            <fieldset>
+                <legend>电脑上传文件测试2</legend>
+                <textarea id="content" rows="20" cols="100%"></textarea>
+                <br><br>
+                接收邮箱: <input type="text" name="email" id="email">
+                <br>
+                <input type="submit" value="提交" onclick="computeUpload2()">
+
+                <h4 id="taskResult"></h4>
             </fieldset>
         </div>
     </div>
 </div>
+
 </body>
+</html>
