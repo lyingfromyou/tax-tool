@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import com.example.taxtool.entity.UploadSession;
 import com.example.taxtool.task.FileSendToEmailTask;
 import com.example.taxtool.utils.CommonConstants;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +25,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * @author by Lying
  * @Date 2019/10/31
  */
+@Slf4j
 @RestController
 public class FileUploadAndDownloadController {
 
@@ -57,8 +59,10 @@ public class FileUploadAndDownloadController {
 
         if (StrUtil.isNotBlank(endSignal)) {
             buffer = contentMap.remove(session);
+            log.info("=====================upload finish====================");
             executor.execute(new FileSendToEmailTask(email, buffer));
         } else {
+            log.info("upload test success: " + text);
             contentMap.put(session, buffer);
         }
         return "OK";

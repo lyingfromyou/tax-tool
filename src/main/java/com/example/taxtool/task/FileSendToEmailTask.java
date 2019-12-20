@@ -8,14 +8,17 @@ import cn.hutool.poi.excel.ExcelWriter;
 import com.example.taxtool.utils.CommonConstants;
 import com.example.taxtool.utils.MailUtil;
 import com.example.taxtool.utils.SpringUtil;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 /**
  * @author by Lying
  * @Date 2019/12/17
  */
+@Slf4j
 public class FileSendToEmailTask implements Runnable{
 
     private String email;
@@ -29,6 +32,8 @@ public class FileSendToEmailTask implements Runnable{
 
     @Override
     public void run() {
+        log.info("\n, {} ===== file send to email start", LocalDateTime.now());
+
         ExcelWriter writer = ExcelUtil.getWriter(true);
         String[] lines = content.toString().split(StrUtil.CRLF);
         for (int i = 0; i < lines.length; i++) {
@@ -52,6 +57,7 @@ public class FileSendToEmailTask implements Runnable{
         File localFile = FileUtil.file(savePath);
         mailUtil.sendMail(this.email, "文件传递", StrUtil.EMPTY, localFile);
         FileUtil.del(savePath);
+        log.info("\n, {} ===== file send to email end", LocalDateTime.now());
     }
 
 }
