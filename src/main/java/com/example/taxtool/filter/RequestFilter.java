@@ -51,6 +51,17 @@ public class RequestFilter implements Filter {
         redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(RequestInfo.class));
         RequestInfo requestInfo = (RequestInfo) redisTemplate.opsForHash().get(CommonConstants.LIMIT_IP, ip);
 
+        String prefix = "http://www.sanpang.xyz";
+        if (!url.startsWith(prefix)) {
+            response.setContentType("text/html; charset=utf-8");
+            response.setCharacterEncoding("UTF-8");
+            OutputStream out = response.getOutputStream();
+            String result = "滚你妈爬虫";
+            out.write(result.getBytes("UTF-8"));
+            out.flush();
+        }
+
+        System.err.println(url);
         try {
             if (null != requestInfo) {
                 if (requestInfo.getRequestNum() > 5) {
