@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
@@ -39,6 +40,9 @@ public class RequestFilter implements Filter {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Value("${url.prefix}")
+    private String prefix;
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -51,7 +55,6 @@ public class RequestFilter implements Filter {
         redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(RequestInfo.class));
         RequestInfo requestInfo = (RequestInfo) redisTemplate.opsForHash().get(CommonConstants.LIMIT_IP, ip);
 
-        String prefix = "http://www.sanpang.xyz";
         if (!url.startsWith(prefix)) {
             response.setContentType("text/html; charset=utf-8");
             response.setCharacterEncoding("UTF-8");

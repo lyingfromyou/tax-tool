@@ -1,0 +1,10 @@
+url:
+  prefix: http://www.sanpang.xyz
+
+spring:
+  redis:
+    # Redis服务器地址
+    host: 127.0.0.1
+    # Redis服务器连接端口
+    port: 6379
+    password: nieqin
