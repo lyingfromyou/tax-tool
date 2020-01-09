@@ -50,21 +50,21 @@ public class RequestFilter implements Filter {
         String ip = WebUtils.getIP(request);
         String uri = request.getRequestURI();
         String url = request.getRequestURL().toString();
+        String userAgent = request.getHeader("user-agent");
+
+        System.out.println("浏览器基本信息：" + userAgent);
+        System.out.println("客户端发出请求时的完整URL" + url);
+        System.out.println("请求行中的资源名部分" + uri);
+        System.out.println();
+
+        if (userAgent.contains("Go-http-client") || !url.startsWith(prefix)) {
+            writeResult("沙雕", response);
+            return;
+        }
 
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         redisTemplate.setHashValueSerializer(new Jackson2JsonRedisSerializer<>(RequestInfo.class));
         RequestInfo requestInfo = (RequestInfo) redisTemplate.opsForHash().get(CommonConstants.LIMIT_IP, ip);
-
-        if (!url.startsWith(prefix)) {
-            response.setContentType("text/html; charset=utf-8");
-            response.setCharacterEncoding("UTF-8");
-            OutputStream out = response.getOutputStream();
-            String result = "滚你妈爬虫";
-            out.write(result.getBytes("UTF-8"));
-            out.flush();
-        }
-
-        System.err.println(url);
         try {
             if (null != requestInfo) {
                 if (requestInfo.getRequestNum() > 5) {
@@ -84,21 +84,20 @@ public class RequestFilter implements Filter {
                 }
                 redisTemplate.opsForHash().put(CommonConstants.LIMIT_IP, ip, requestInfo);
             } else if (e instanceof LimitIpException) {
-                response.setContentType("text/html; charset=utf-8");
-                response.setCharacterEncoding("UTF-8");
-                OutputStream out = response.getOutputStream();
-                String result = "<h1 style='color:red'>" +
-                        "本网站禁止网络爬虫等恶意程序, 你的网络已被监控, 我方会随时将相关数据提交给网警, 警告:不要面向监狱编程" +
-                        "</h1>";
-
-                out.write(result.getBytes("UTF-8"));
-                out.flush();
+                writeResult("沙雕", response);
             }
             log.error(e.getLocalizedMessage());
         }
 
     }
 
+    private void writeResult(String result, HttpServletResponse response) throws IOException {
+        response.setContentType("text/html; charset=utf-8");
+        response.setCharacterEncoding("UTF-8");
+        OutputStream out = response.getOutputStream();
+        out.write(result.getBytes("UTF-8"));
+        out.flush();
+    }
 
     @Data
     @AllArgsConstructor
