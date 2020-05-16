@@ -52,11 +52,6 @@ public class RequestFilter implements Filter {
         String url = request.getRequestURL().toString();
         String userAgent = request.getHeader("user-agent");
 
-        System.out.println("浏览器基本信息：" + userAgent);
-        System.out.println("客户端发出请求时的完整URL" + url);
-        System.out.println("请求行中的资源名部分" + uri);
-        System.out.println();
-
         if (userAgent.contains("Go-http-client") || !url.startsWith(prefix)) {
             writeResult("沙雕", response);
             return;
