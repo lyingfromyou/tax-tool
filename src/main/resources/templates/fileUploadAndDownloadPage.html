@@ -92,7 +92,7 @@
         <div>
             <fieldset>
                 <legend>上传文件</legend>
-                <input method="post" th:action="@{/file/upload}" enctype="multipart/form-data">
+                <form method="post" th:action="@{/file/upload}" enctype="multipart/form-data">
                 <input type="file" name="file">
                 <span class="note">文件下载之后就会删除(文件最多保留一天, 过期删除不负责)</span>
                 <br><br>
