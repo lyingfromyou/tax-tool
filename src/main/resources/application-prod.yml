@@ -1,6 +1,3 @@
-url:
-  prefix: http://www.sanpang.xyz
-
 spring:
   redis:
     # Redis服务器地址
