@@ -3,7 +3,7 @@
 
 <head>
     <title>San Pang</title>
-    <meta charset="utf-8" />
+    <meta charset="utf-8"/>
     <style>
         html,
         body,
@@ -112,7 +112,7 @@
             text-align: center;
         }
 
-        #main>.inner {
+        #main > .inner {
             position: relative;
             z-index: 1;
             border-radius: inherit;
@@ -121,24 +121,24 @@
             width: 55rem;
         }
 
-        #main>.inner>header {
+        #main > .inner > header {
             margin-bottom: 2.5rem;
         }
 
-        #main>.inner>footer {
+        #main > .inner > footer {
             margin-top: 2.5rem;
         }
 
-        #main>.inner>*>* {
+        #main > .inner > * > * {
             margin-top: 2.5rem;
             margin-bottom: 2.5rem;
         }
 
-        #main>.inner>*> :first-child {
+        #main > .inner > * > :first-child {
             margin-top: 0 !important;
         }
 
-        #main>.inner>*> :last-child {
+        #main > .inner > * > :last-child {
             margin-bottom: 0 !important;
         }
 
@@ -178,65 +178,65 @@
             font-weight: 300;
         }
 
-        .container>.inner {
+        .container > .inner {
             vertical-align: top;
             position: relative;
             max-width: 100%;
             border-radius: inherit;
         }
 
-        #columns04>.inner {
+        #columns04 > .inner {
             padding: 0rem 0rem;
             width: 55rem;
             background-color: transparent;
         }
 
-        #columns04.default>.inner {
+        #columns04.default > .inner {
             display: inline-block;
         }
 
-        #columns04.default>.inner>* {
+        #columns04.default > .inner > * {
             margin-top: 1rem;
             margin-bottom: 1rem;
         }
 
-        #columns04.default>.inner>*:first-child {
+        #columns04.default > .inner > *:first-child {
             margin-top: 0 !important;
         }
 
-        #columns04.default>.inner>*:last-child {
+        #columns04.default > .inner > *:last-child {
             margin-bottom: 0 !important;
         }
 
-        #columns04.columns>.inner {
+        #columns04.columns > .inner {
             flex-wrap: wrap;
             display: inline-flex;
             align-items: flex-start;
         }
 
-        #columns04.columns>.inner>* {
+        #columns04.columns > .inner > * {
             flex-shrink: 0;
             flex-grow: 0;
             max-width: 100%;
             padding: 0 0 0 3rem;
         }
 
-        #columns04.columns>.inner>*>* {
+        #columns04.columns > .inner > * > * {
             margin-top: 1rem;
             margin-bottom: 1rem;
         }
 
-        #columns04.columns>.inner>*:first-child {
+        #columns04.columns > .inner > *:first-child {
             margin-left: -3rem;
         }
 
 
-        #columns04>.inner> :nth-child(1) {
+        #columns04 > .inner > :nth-child(1) {
             width: calc(55% + 1.5rem);
             text-align: left;
         }
 
-        #columns04>.inner> :nth-child(2) {
+        #columns04 > .inner > :nth-child(2) {
             width: calc(45% + 1.5rem);
         }
 
@@ -274,12 +274,12 @@
             vertical-align: middle;
         }
 
-        #loginForm .inner>* {
+        #loginForm .inner > * {
             margin: 1.375rem 0 0 0;
             max-width: 100%;
         }
 
-        #loginForm .inner> :first-child {
+        #loginForm .inner > :first-child {
             margin: 0;
         }
 
@@ -334,9 +334,11 @@
 
     </style>
 
+
+
 </head>
 
-<body class="is-loading"  >
+<body class="is-loading">
 <div id="wrapper">
     <div id="main">
         <div class="inner">
@@ -347,8 +349,8 @@
                         <div>
                             <img th:src="@{img/qin.jpg}" width="300" height="300">
                             <div style="margin-top:-30px ">
-                            <h1 id="text04">San Pang</h1>
-                            <p id="text02">San Pang is a very cute kitten, we all love her.</p>
+                                <h1 id="text04">San Pang</h1>
+                                <p id="text02">San Pang is a very cute kitten, we all love her.</p>
                             </div>
                         </div>
                         <div style="margin-top:80px">
@@ -362,7 +364,7 @@
                                                               id="username"
                                                               placeholder="用户名"
                                                               maxlength="128"
-                                                              required /></div>
+                                                              required/></div>
 
                                     <div class="field"><input type="password"
                                                               name="password"
@@ -370,7 +372,7 @@
                                                               placeholder="密码"
                                                               maxlength="128"
                                                               style="width: 100%"
-                                                              required /></div>
+                                                              required/></div>
                                     <div class="actions">
                                         <button type="submit">Submit</button>
                                     </div>
@@ -397,5 +399,7 @@
 </div>
 
 </body>
-
+<script>
+    alert("请使用最新地址: \n"+"   tax-tool.lyingfromyou.top")
+</script>
 </html>
