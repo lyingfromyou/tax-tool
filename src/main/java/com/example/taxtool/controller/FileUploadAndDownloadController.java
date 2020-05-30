@@ -104,9 +104,9 @@ public class FileUploadAndDownloadController {
             resultUrl = rootUrl + DOWNLOAD_PREFIX + "/"
                     + CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName;
         } else {
-            if (rootUrl.contains(":8899")) {
-                rootUrl = rootUrl.replace(":8899", "");
-            }
+            rootUrl = rootUrl.replace(":8899", StrUtil.EMPTY).replace("http://", StrUtil.EMPTY)
+                    .replace("https://", StrUtil.EMPTY);
+
             InetAddress ip = InetAddress.getByName(rootUrl);
             System.out.println("IP地址:" + ip.getHostAddress());
             System.out.println("域名：" + ip.getHostName());
