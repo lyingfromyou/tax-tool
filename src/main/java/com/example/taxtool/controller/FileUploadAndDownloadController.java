@@ -8,7 +8,6 @@ import com.example.taxtool.task.FileSendToEmailTask;
 import com.example.taxtool.utils.CommonConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.InetAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -99,10 +99,22 @@ public class FileUploadAndDownloadController {
 
         String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
 
-        rootUrl = rootUrl.replace(":8899", "");
-
-        return rootUrl + DOWNLOAD_PREFIX + "/" + id + StrUtil.SLASH + fileName;
-//        return rootUrl + "/file/download?fileId=" + id;
+        String resultUrl = "";
+        if (rootUrl.contains("localhost")) {
+            resultUrl = rootUrl + DOWNLOAD_PREFIX + "/"
+                    + CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName;
+        } else {
+            if (rootUrl.contains(":8899")) {
+                rootUrl = rootUrl.replace(":8899", "");
+            }
+            InetAddress ip = InetAddress.getByName(rootUrl);
+            System.out.println("IP地址:" + ip.getHostAddress());
+            System.out.println("域名：" + ip.getHostName());
+            resultUrl = ip.getHostAddress() + DOWNLOAD_PREFIX + "/"
+                    + CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName;
+        }
+        System.out.println("resultUrl: " + resultUrl);
+        return resultUrl;
     }
 
     @GetMapping(value = "/file/download", produces = "application/json; charset=utf-8")
