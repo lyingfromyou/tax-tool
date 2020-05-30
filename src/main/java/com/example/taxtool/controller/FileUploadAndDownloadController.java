@@ -3,6 +3,7 @@ package com.example.taxtool.controller;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import com.example.taxtool.entity.UploadSession;
 import com.example.taxtool.task.FileSendToEmailTask;
 import com.example.taxtool.utils.CommonConstants;
@@ -101,7 +102,7 @@ public class FileUploadAndDownloadController {
 
         String resultUrl = "";
         if (rootUrl.contains("localhost")) {
-            resultUrl = rootUrl + DOWNLOAD_PREFIX + "/"
+            resultUrl = rootUrl + DOWNLOAD_PREFIX
                     + CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName;
         } else {
             rootUrl = rootUrl.replace(":8899", StrUtil.EMPTY).replace("http://", StrUtil.EMPTY)
@@ -110,7 +111,7 @@ public class FileUploadAndDownloadController {
             InetAddress ip = InetAddress.getByName(rootUrl);
             System.out.println("IP地址:" + ip.getHostAddress());
             System.out.println("域名：" + ip.getHostName());
-            resultUrl = ip.getHostAddress() + DOWNLOAD_PREFIX + "/"
+            resultUrl = ip.getHostAddress() + DOWNLOAD_PREFIX
                     + CommonConstants.FILE_UPLOAD_PATH + id + StrUtil.SLASH + fileName;
         }
         System.out.println("resultUrl: " + resultUrl);
