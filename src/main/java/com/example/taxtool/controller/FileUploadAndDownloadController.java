@@ -69,7 +69,7 @@ public class FileUploadAndDownloadController {
         return "OK";
     }
 
-    private synchronized void appendContent(String text,  StringBuffer buffer) {
+    private synchronized void appendContent(String text, StringBuffer buffer) {
         if (StrUtil.isNotBlank(text)) {
             buffer.append(text);
             buffer.append(StrUtil.CRLF);
@@ -98,7 +98,10 @@ public class FileUploadAndDownloadController {
         FileUtil.writeFromStream(file.getInputStream(), filePath + id + StrUtil.SLASH + fileName);
 
         String rootUrl = request.getRequestURL().toString().replace(request.getRequestURI(), StrUtil.EMPTY);
-        return rootUrl + DOWNLOAD_PREFIX + "/upload_file/" + id + StrUtil.SLASH + fileName;
+
+        rootUrl = rootUrl.replace(":8899", "");
+
+        return rootUrl + DOWNLOAD_PREFIX + "/" + id + StrUtil.SLASH + fileName;
 //        return rootUrl + "/file/download?fileId=" + id;
     }
 
