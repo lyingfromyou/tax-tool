@@ -1,12 +1,21 @@
 package com.example.taxtool.controller;
 
+import cn.hutool.core.annotation.Alias;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.comparator.IndexedComparator;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.URLUtil;
+import cn.hutool.poi.excel.ExcelUtil;
+import cn.hutool.poi.excel.ExcelWriter;
+import com.example.taxtool.entity.SignInDataExport;
 import com.example.taxtool.entity.UploadSession;
 import com.example.taxtool.task.FileSendToEmailTask;
 import com.example.taxtool.utils.CommonConstants;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -16,11 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.net.InetAddress;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
@@ -167,4 +174,36 @@ public class FileUploadAndDownloadController {
             }
         }
     }
+
+    public static void main(String[] args) {
+        List<SignInDataExport> rows = new ArrayList<>();
+        rows.add(SignInDataExport.builder().num(1).districtName("").orgName("市辖区").build());
+        rows.add(SignInDataExport.builder().num(2).districtName("市辖区").orgName("").build());
+        rows.add(SignInDataExport.builder().num(3).districtName("").orgName("").build());
+
+
+        // 通过工具类创建writer
+//        ExcelWriter writer = ExcelUtil.getWriter("d:/writeBeanTest.xlsx");
+        ExcelWriter writer = ExcelUtil.getWriter("d:/writeBeanTest.xls");
+
+//自定义标题别名
+        writer.addHeaderAlias("num", "序列");
+        writer.addHeaderAlias("districtName", "区县");
+        writer.addHeaderAlias("orgName", "教育局/学校");
+//        Field[] fields = SignInDataExport.class.getDeclaredFields();
+//        for (Field field : fields) {
+//            writer.addHeaderAlias(field.getName(), field.getAnnotation(Alias.class).value());
+//
+//        }
+
+// 合并单元格后的标题行，使用默认标题样式
+        writer.merge(2, "一班成绩单");
+// 一次性写出内容，使用默认样式，强制输出标题
+        writer.write(rows, true);
+// 关闭writer，释放内存
+        writer.close();
+
+
+    }
+
 }

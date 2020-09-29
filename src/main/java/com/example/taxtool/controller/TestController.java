@@ -38,6 +38,7 @@ public class TestController {
 
 
 
+
     @PostMapping("/jquery")
     public String jquery(@RequestParam("file") MultipartFile file, @RequestParam Map<String, Object> map) throws IOException {
         System.err.println( file.getOriginalFilename());
@@ -122,5 +123,35 @@ public class TestController {
         requestMap.put("pass", "Sanpang1112");
         return requestMap;
     }
+
+    public static void main(String[] args) {
+        for (int i = 1; i < 11; i++) {
+            Integer beforeYesterday = getBeforeYesterday(i);
+            Boolean z1 = checkZhang(i);
+            Boolean z2 = checkZhang(beforeYesterday);
+
+            Boolean l1 = checkLi(i);
+            Boolean l2 = checkLi(beforeYesterday);
+
+            if (((z1 && !z2) || (!z1 && z2)) && ((l1 && !l2) || (!l1 && l2))) {
+                System.err.println("星期 " + i);
+            }
+        }
+    }
+
+
+    public static Integer getBeforeYesterday(Integer day) {
+        return day - 2 > 0 ? day - 2 : day + 5;
+    }
+
+
+    public static Boolean checkZhang(Integer day) {
+        return day % 2 != 0 && day != 7;
+    }
+
+    public static Boolean checkLi(Integer day) {
+        return day % 2 == 0;
+    }
+
 
 }

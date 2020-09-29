@@ -76,7 +76,7 @@ public class TaxUtil {
         params.put("sfzjlxDm", "201");
         params.put("sfzjhm", sfz);
         params.put("xm", xm);
-        return isSuccess(request.body(new JSONObject(params)).execute().body());
+        return isSuccess(request.body(new JSONObject(params).toString()).execute().body());
     }
 
     public static Boolean remove(String cookie, UserInfo userInfo) {
@@ -95,7 +95,7 @@ public class TaxUtil {
         params.put("xm", userInfo.getXm());
         params.put("zrrdah", userInfo.getZrrdah());
 
-        return isSuccess(request.body(new JSONObject(params)).execute().body());
+        return isSuccess(request.body(new JSONObject(params).toString()).execute().body());
     }
 
     public static Boolean delete(String cookie, UserInfo userInfo) {
@@ -107,7 +107,7 @@ public class TaxUtil {
         params.put("dwdjxh", dwdjxh);
         params.put("bsryxh", userInfo.getBsryxh());
         params.put("zrrdah", userInfo.getZrrdah());
-        return isSuccess(request.body(new JSONObject(params)).execute().body());
+        return isSuccess(request.body(new JSONObject(params).toString()).execute().body());
     }
 
     public static Boolean isSuccess(String result) {
