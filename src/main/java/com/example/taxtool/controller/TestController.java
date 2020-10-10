@@ -137,6 +137,30 @@ public class TestController {
                 System.err.println("星期 " + i);
             }
         }
+        for (int i = 1; i < 11; i++) {
+            Integer beforeYesterday = getBeforeYesterday(i);
+            Boolean z1 = checkZhang(i);
+            Boolean z2 = checkZhang(beforeYesterday);
+
+            Boolean l1 = checkLi(i);
+            Boolean l2 = checkLi(beforeYesterday);
+
+            if (((z1 && !z2) || (!z1 && z2)) && ((l1 && !l2) || (!l1 && l2))) {
+                System.err.println("星期 " + i);
+            }
+        }
+        for (int i = 1; i < 11; i++) {
+            Integer beforeYesterday = getBeforeYesterday(i);
+            Boolean z1 = checkZhang(i);
+            Boolean z2 = checkZhang(beforeYesterday);
+
+            Boolean l1 = checkLi(i);
+            Boolean l2 = checkLi(beforeYesterday);
+
+            if (((z1 && !z2) || (!z1 && z2)) && ((l1 && !l2) || (!l1 && l2))) {
+                System.err.println("星期 " + i);
+            }
+        }
     }
 
 
