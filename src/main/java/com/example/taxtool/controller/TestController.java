@@ -126,7 +126,7 @@ public class TestController {
 
     public static void main(String[] args) {
         for (int i = 1; i < 11; i++) {
-            Integer beforeYesterday = getBeforeYesterday(i);
+            Integer beforeYesterday = getBeforeYesterday(i,"s");
             Boolean z1 = checkZhang(i);
             Boolean z2 = checkZhang(beforeYesterday);
 
@@ -138,7 +138,7 @@ public class TestController {
             }
         }
         for (int i = 1; i < 11; i++) {
-            Integer beforeYesterday = getBeforeYesterday(i);
+            Integer beforeYesterday = getBeforeYesterday(i,"s");
             Boolean z1 = checkZhang(i);
             Boolean z2 = checkZhang(beforeYesterday);
 
@@ -150,7 +150,7 @@ public class TestController {
             }
         }
         for (int i = 1; i < 11; i++) {
-            Integer beforeYesterday = getBeforeYesterday(i);
+            Integer beforeYesterday = getBeforeYesterday(i, "s");
             Boolean z1 = checkZhang(i);
             Boolean z2 = checkZhang(beforeYesterday);
 
@@ -164,7 +164,8 @@ public class TestController {
     }
 
 
-    public static Integer getBeforeYesterday(Integer day) {
+    public static Integer getBeforeYesterday(Integer day, String devParam) {
+        System.err.println(devParam);
         return day - 2 > 0 ? day - 2 : day + 5;
     }
 
