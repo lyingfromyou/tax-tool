@@ -37,12 +37,12 @@ mailjet:
 
 
 ali-sms:
-  accessKeyId: 'LTAI4G4CgC8p1NW5gLQFaRKU'
-  accessSecret: 'JIW8QVMzM0YuVWNzCpAAq8dqGsfOBA'
+  accessKeyId: ''
+  accessSecret: ''
   # 模板代码
-  templateCode: 'SMS_211493450'
+  templateCode: ''
   # 短信签名
-  signName: 'Lying'
+  signName: ''
 
 
 
