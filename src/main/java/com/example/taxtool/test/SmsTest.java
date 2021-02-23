@@ -10,6 +10,9 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.example.taxtool.utils.GsonUtil;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Max
  * @date 2021/2/18 17:20
@@ -37,13 +40,16 @@ public class SmsTest {
         //可选:模板中的变量替换JSON串,如模板内容为"亲爱的${name},您的验证码为${code}"时,此处的值为
         //友情提示:如果JSON中需要带换行符,请参照标准的JSON协议对换行符的要求,比如短信内容中包含\r\n的情况在JSON中需要表示成\\r\\n,否则会导致JSON在服务端解析失败
         //参考：request.setTemplateParam("{\"变量1\":\"值1\",\"变量2\":\"值2\",\"变量3\":\"值3\"}")
-        request.setTemplateParam("{\"code\":\"996\"}");
+        request.setTemplateParam("{\"code\":\"65123\"}");
 
 
         //请求失败这里会抛ClientException异常
         SendSmsResponse sendSmsResponse = acsClient.getAcsResponse(request);
-        if (sendSmsResponse.getCode() != null && sendSmsResponse.getCode().equals("OK")) {
+        String code = sendSmsResponse.getCode();
+        if (code != null && "OK".equals(code)) {
             //请求成功
+            Map<String, String> map = new HashMap<>();
+            map.put(code, code);
         }
         System.err.println(GsonUtil.toJson(sendSmsResponse));
     }
